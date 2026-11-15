@@ -60,7 +60,15 @@
       if (!mail) return;
       track('Lead', { content_name: 'waitlist', content_category: f.dataset.where || '' });
       var done = function () { f.classList.add('done'); f.querySelector('.soon-thanks').hidden = false; };
-      if (f.getAttribute('action')) {
+      var rg = window.RG || {};
+      if (rg.sb && rg.sb.url) {
+        var bron = ((f.dataset.where || '') + (ct ? '|' + ct : '')).slice(0, 40);
+        fetch(rg.sb.url + '/rest/v1/rg_aanmeldingen', {
+          method: 'POST',
+          headers: { apikey: rg.sb.key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ email: mail, lang: rg.lang || 'nl', bron: bron })
+        }).then(done, done);
+      } else if (f.getAttribute('action')) {
         var body = new FormData(f);
         body.append('campaign', ct);
         fetch(f.getAttribute('action'), { method: 'POST', body: body, headers: { Accept: 'application/json' } }).then(done, done);

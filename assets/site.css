@@ -95,6 +95,7 @@ section { padding: clamp(56px, 9vw, 96px) 0; position: relative; }
 
 /* Hero */
 .hero-in { position: relative; max-width: 1120px; margin: 0 auto; padding: 0 16px; display: grid; gap: 8px; }
+.tagline { font: 700 1.35rem var(--head); color: var(--orange, #F47B20); margin: -.2em 0 .5em; }
 .kicker { display: inline-block; font: 600 .9rem var(--head); color: var(--ink); background: #fff; box-shadow: 0 4px 12px -6px rgba(19, 48, 107, .35); border-radius: 999px; padding: 4px 14px; margin-bottom: 1em; }
 .hero h1 { color: var(--ink); }
 .badges { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 0; margin: 0; font-weight: 600; font-size: .95rem; }

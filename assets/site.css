@@ -428,3 +428,19 @@ img.gift-box { width: 140px; height: auto; font-size: 0; filter: drop-shadow(0 1
 .shots.band { background: #fff; padding-top: clamp(56px, 7vw, 96px); }
 .demo { background: var(--sky-light); }
 .meet.band { background: #fff; }
+/* Volgorde voor conversie (15 nov): achtergronden laten afwisselen */
+.shots.band { background: #fff; }
+.demo { background: var(--sky-light); }
+.worlds { background: #fff; }
+.meet.band { background: var(--sky-light); }
+.story { background: #fff; }
+.how.band { background: var(--sky-light); }
+.prices { background: #fff; }
+.faq.band { background: var(--sky-light); }
+.end { padding-bottom: clamp(64px, 9vw, 120px); }
+.gift-teaser { padding: clamp(48px, 6vw, 72px) 0; }
+/* Verhaal hoger (15 nov) */
+.story { background: var(--sky-light); }
+.how.band { background: #fff; }
+.prices { background: var(--sky-light); }
+.faq.band { background: #fff; }

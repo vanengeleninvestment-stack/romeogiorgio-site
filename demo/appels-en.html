@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="profiel.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Romeo &amp; Giorgio: count the apples</title>
+<link rel="stylesheet" href="fonts/fredoka.css">
+<style>
+/* Speelwereld: lucht boven, grasstrook onder met de antwoordtegels; links Beer Bella met tekstballon, rechts het appelveld (16:9). Bewust één thema. */
+:root{
+  --sky:#BFE3F7; --sky2:#EAF7FD; --grass:#86C873; --grass2:#62A955;
+  --apple:#E0412F; --leaf:#4E9A3E; --stem:#7A4A22;
+  --bear:#A86B3C; --bear-l:#E8B98A; --bear-d:#3B2416;
+  --ink:#22324A; --card:#FFFFFF; --hl:#FFD84D; --soft:#5B6B82;
+  --f:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:var(--f);color:var(--ink);background:var(--sky);overflow:hidden;touch-action:manipulation;
+  user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer}
+button:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+
+#app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr auto;
+  background:linear-gradient(var(--sky2),var(--sky));
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)}
+
+/* bovenbalk */
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;gap:12px}
+.stars{display:flex;gap:6px;flex-wrap:wrap}
+.star{width:34px;height:34px}
+.star path{fill:rgba(255,255,255,.7);stroke:#E5B92E;stroke-width:3;transition:fill .3s}
+.star.on path{fill:var(--hl)}
+.parentbtn{font-size:15px;font-weight:500;color:var(--soft);background:rgba(255,255,255,.55);padding:8px 14px;border-radius:999px}
+
+/* scène */
+.scene{display:grid;grid-template-columns:minmax(150px,22%) 1fr;gap:12px;padding:0 22px 12px;min-height:0}
+.bearcol{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:0}
+.bubble{background:var(--card);border-radius:22px;padding:12px 16px;font-size:clamp(16px,1.9vw,22px);font-weight:500;
+  text-align:center;box-shadow:0 4px 0 rgba(34,50,74,.12);position:relative;min-height:2.6em;display:grid;place-items:center;max-width:100%}
+.bubble::after{content:"";position:absolute;bottom:-12px;left:50%;margin-left:-12px;border:12px solid transparent;border-bottom:0;border-top-color:var(--card)}
+.bear{width:min(100%,200px);height:auto}
+.bear.talk{animation:bob .5s ease-in-out infinite alternate}
+.bear .closed{display:none}
+.bear.sleep .open{display:none}.bear.sleep .closed{display:inline}
+@keyframes bob{to{transform:translateY(-5px) rotate(-2deg)}}
+
+.fieldwrap{container-type:size;display:grid;place-items:center;min-height:0;min-width:0}
+.field{position:relative;width:min(100cqw,calc(100cqh * 16 / 9));aspect-ratio:16/9;
+  background:rgba(255,255,255,.5);border-radius:32px;border:4px dashed rgba(255,255,255,.9)}
+.apple{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;padding:0;transition:transform .15s}
+.apple svg{width:100%;height:100%;display:block;transition:filter .2s}
+.apple:active{transform:translate(-50%,-50%) scale(.92)}
+.apple.counted svg{filter:drop-shadow(0 0 0 var(--hl)) drop-shadow(0 0 10px var(--hl))}
+.badge{position:absolute;top:-6%;right:-6%;width:44%;aspect-ratio:1;border-radius:50%;background:var(--ink);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-size:clamp(14px,2.2vw,30px);transform:scale(0);transition:transform .2s cubic-bezier(.3,1.6,.5,1)}
+.apple.counted .badge{transform:scale(1)}
+.field.win .apple{animation:hop .5s ease-in-out 2 alternate}
+.field.win .apple:nth-child(2n){animation-delay:.12s}
+@keyframes hop{to{transform:translate(-50%,-70%)}}
+.apple.enter{animation:pop .35s cubic-bezier(.3,1.6,.5,1) backwards}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(0)}}
+
+/* antwoorden op het gras */
+.answers{background:linear-gradient(var(--grass),var(--grass2));padding:22px 22px calc(22px + env(safe-area-inset-bottom,0px));
+  display:flex;justify-content:center;gap:clamp(16px,3vw,36px);border-top:6px solid #9BD688}
+.tile{width:clamp(110px,15vw,168px);aspect-ratio:1/1.05;background:var(--card);border-radius:28px;box-shadow:0 7px 0 rgba(0,0,0,.18);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;transition:transform .12s,opacity .3s}
+.tile:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.tile .num{font-size:clamp(52px,7vw,84px);font-weight:700;line-height:1}
+.tile .dots{display:grid;justify-content:center;gap:4px}
+.tile .dots i{width:11px;height:11px;border-radius:50%;background:var(--apple)}
+.tile.nope{opacity:.3;pointer-events:none}
+.tile.shake{animation:shake .4s}
+.tile.pulse{animation:pulse 1s ease-in-out infinite}
+.tile.right{background:var(--hl)}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes pulse{50%{transform:scale(1.08);box-shadow:0 7px 0 rgba(0,0,0,.18),0 0 0 10px rgba(255,216,77,.7)}}
+.busy .tile,.busy .apple{pointer-events:none}
+
+/* overlays */
+.overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(var(--sky2),var(--sky));z-index:5;padding:24px}
+.card{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;max-width:520px}
+.card h1{font-size:clamp(36px,6vw,60px);margin:0;font-weight:700}
+.card p{margin:0;font-size:20px;color:var(--soft)}
+.play{font-size:34px;font-weight:700;background:var(--apple);color:#fff;border-radius:999px;padding:18px 54px;box-shadow:0 8px 0 #A92B1E}
+.play:active{transform:translateY(5px);box-shadow:0 3px 0 #A92B1E}
+.small{font-size:14px;color:var(--soft)}
+
+/* ouders */
+.parent{position:fixed;inset:0;background:rgba(34,50,74,.45);display:grid;place-items:center;z-index:6;padding:20px}
+.panel{background:var(--card);border-radius:24px;padding:24px;width:min(560px,100%);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:14px;font-family:system-ui,-apple-system,sans-serif}
+.panel h2{margin:0;font-family:var(--f);font-size:26px}
+.hold{position:relative;overflow:hidden;background:var(--sky2);border-radius:16px;padding:22px;font-size:18px;font-weight:600;text-align:center;width:100%}
+.hold span{position:absolute;inset:0 auto 0 0;width:0;background:var(--hl);opacity:.7}
+.hold b{position:relative}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stats div{background:var(--sky2);border-radius:14px;padding:10px 12px}
+.stats b{display:block;font-size:24px;font-family:var(--f);font-variant-numeric:tabular-nums}
+.stats small{color:var(--soft);font-size:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:15px}
+.row label{min-width:120px;color:var(--soft)}
+select,.btn{font:inherit;font-size:15px;padding:8px 12px;border-radius:10px;border:1px solid #CBD5E1;background:#fff}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 8px;border-bottom:1px solid #E2E8F0;text-align:left}
+th{color:var(--soft);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+
+@media (orientation:portrait){
+  .scene{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .bearcol{flex-direction:row}
+  .bear{width:110px}
+  .bubble::after{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+</style>
+<style>/* Bella-tekening */.bear img{width:100%;height:auto;display:block;pointer-events:none}.bear .happy,.bear .closed{display:none}.bear.happy .open{display:none}.bear.happy .happy{display:block}.bear.sleep .open,.bear.sleep .happy{display:none}.bear.sleep .closed{display:block}</style>
+<style>/* terugknop */.topleft{display:flex;align-items:center;gap:12px;min-width:0}.homebtn{flex:none;width:54px;height:54px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 3px 0 rgba(34,50,74,.14);touch-action:manipulation}.homebtn svg{width:30px;height:30px}.homebtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(34,50,74,.14)}</style>
+<style>.homebtn,.parentbtn,a[href="index.html"]{display:none!important}</style></head>
+<body>
+
+<div id="app">
+  <div class="top">
+    <div class="topleft"><a class="homebtn" href="index.html" aria-label="Back to the menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2" fill="none" stroke="#22324A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9.5h4.5V14h3v5.5H18V10" fill="#FFD84D" stroke="#22324A" stroke-width="2.2" stroke-linejoin="round"/></svg></a><div class="stars" id="stars" aria-label="Stars"></div></div>
+    <button class="parentbtn" id="parentBtn">Parents</button>
+  </div>
+  <div class="scene">
+    <div class="bearcol">
+      <div class="bubble" id="bubble" aria-live="polite">Hello!</div>
+      <div class="bear" id="bear" aria-hidden="true"><img class="open" src="img/romeo-zwaai.webp" alt=""><img class="happy" src="img/romeo-blij.webp" alt=""><img class="closed" src="img/romeo-slaap.webp" alt=""></div>
+    </div>
+    <div class="fieldwrap"><div class="field" id="field"></div></div>
+  </div>
+  <div class="answers" id="answers"></div>
+</div>
+
+<div class="overlay" id="start">
+  <div class="card">
+    <img src="img/romeo-zwaai.webp" alt="" style="height:170px;width:auto;display:block;margin:0 auto">
+    <h1>Count the apples</h1>
+    <p>With Romeo and Giorgio</p>
+    <button class="play" id="playBtn">▶ Play</button>
+    <a class="small" href="index.html" style="font-size:18px;font-weight:600;text-underline-offset:4px">← Menu</a>
+    <span class="small" id="voiceNote"></span>
+  </div>
+</div>
+
+<div class="overlay" id="end" hidden>
+  <div class="card">
+    <div class="stars" id="endStars"></div>
+    <h1>Brilliant counting!</h1>
+    <p>Giorgio and I are going to sleep now. See you tomorrow!</p>
+    <button class="play" id="againBtn">Play again</button>
+    <a class="small" href="index.html" style="font-size:18px;font-weight:600;text-underline-offset:4px">← Menu</a>
+    <span class="small">In the real app the game stops here. This button is only for testing.</span>
+  </div>
+</div>
+
+<div class="parent" id="parent" hidden>
+  <div class="panel">
+    <div id="gate">
+      <h2>For parents</h2>
+      <p style="color:var(--soft);margin:6px 0 14px">Hold the button down for 3 seconds.</p>
+      <button class="hold" id="holdBtn"><span id="holdBar"></span><b>Press and hold</b></button>
+      <div class="row" style="margin-top:12px"><button class="btn" id="closeGate">Back to the game</button></div>
+    </div>
+    <div id="dash" hidden>
+      <h2>What has your child practised?</h2>
+      <div class="stats">
+        <div><b id="sRounds">0</b><small>rounds played</small></div>
+        <div><b id="sFirst">0</b><small>right first time</small></div>
+        <div><b id="sHelp">0</b><small>counted together</small></div>
+      </div>
+      <div class="row"><label>Current level</label><b id="sLevel"></b></div>
+      <table><thead><tr><th>Round</th><th>Apples</th><th>Attempts</th><th>Level</th></tr></thead><tbody id="sLog"></tbody></table>
+      <h2 style="font-size:20px;margin-top:6px">Settings (test)</h2>
+      <div class="row"><label for="voiceSel">Voice</label><select id="voiceSel"></select><button class="btn" id="testVoice">Test</button></div>
+      <div class="row"><label for="roundSel">Rounds per go</label><select id="roundSel"><option>5</option><option selected>8</option><option>12</option></select></div>
+      <div class="row"><label for="levelSel">Level</label><select id="levelSel"></select></div>
+      <div class="row"><button class="btn primary" id="closeDash">Back to the game</button></div>
+    </div>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="bearUse">
+      <circle cx="26" cy="28" r="17" fill="#A86B3C"/><circle cx="94" cy="28" r="17" fill="#A86B3C"/>
+      <circle cx="26" cy="28" r="8" fill="#E8B98A"/><circle cx="94" cy="28" r="8" fill="#E8B98A"/>
+      <circle cx="60" cy="64" r="45" fill="#A86B3C"/><ellipse cx="60" cy="82" rx="23" ry="17" fill="#E8B98A"/>
+      <ellipse cx="60" cy="73" rx="8" ry="6" fill="#3B2416"/>
+      <circle cx="43" cy="56" r="5.5" fill="#3B2416"/><circle cx="77" cy="56" r="5.5" fill="#3B2416"/>
+      <path d="M51 85q9 7 18 0" stroke="#3B2416" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <ellipse cx="34" cy="72" rx="6" ry="4" fill="#E78A7A" opacity=".55"/><ellipse cx="86" cy="72" rx="6" ry="4" fill="#E78A7A" opacity=".55"/>
+    </g>
+    <g id="appleG">
+      <path d="M50 30C35 18 10 22 10 52c0 26 20 43 40 36 20 7 40-10 40-36 0-30-25-34-40-22Z" fill="#E0412F"/>
+      <path d="M50 30c0-10 2-18 6-24" stroke="#7A4A22" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M54 18c8-12 24-12 30-6-8 10-22 12-30 6Z" fill="#4E9A3E"/>
+      <ellipse cx="31" cy="46" rx="7" ry="11" fill="#fff" opacity=".35"/>
+    </g>
+  </defs>
+</svg>
+
+<script>
+const WORDS=['zero','one','two','three','four','five','six','seven','eight','nine','ten'];
+const LEVELS=[
+  {max:3, choices:2, layout:'dice',    label:'1 to 3, like a dice'},
+  {max:5, choices:3, layout:'dice',    label:'1 to 5, like a dice'},
+  {max:10,choices:3, layout:'rows',    label:'1 to 10, in rows of 5'},
+  {max:10,choices:3, layout:'scatter', label:'1 to 10, all mixed up'}
+];
+const DICE={1:[[1,1]],2:[[0,0],[2,2]],3:[[0,0],[1,1],[2,2]],4:[[0,0],[2,0],[0,2],[2,2]],5:[[0,0],[2,0],[1,1],[0,2],[2,2]]};
+
+const $=id=>document.getElementById(id);
+const app=$('app'),field=$('field'),answers=$('answers'),bubble=$('bubble'),bear=$('bear');
+const S={level:0,streak:0,struggle:0,round:0,rounds:8,n:0,attempts:0,helped:false,count:0,log:[]};
+
+/* ---------- stem ---------- */
+let voice=null,voices=[];
+const JUF={pitch:1.3}; // vrolijke juf-stem: iets hoger en sneller
+function loadVoices(){
+  if(!('speechSynthesis' in window))return;
+  voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+  if(!voice) voice=['serena','kate','daniel','martha'].map(n=>voices.find(v=>new RegExp(n,'i').test(v.name))).find(Boolean)||voices[0]||null;
+  const sel=$('voiceSel'); sel.innerHTML='';
+  if(!voices.length){sel.innerHTML='<option>No English voice found</option>';}
+  voices.forEach((v,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`${v.name} (${v.lang})`;if(v===voice)o.selected=true;sel.appendChild(o);});
+  $('voiceNote').textContent='';
+}
+if('speechSynthesis' in window){speechSynthesis.onvoiceschanged=loadVoices;}
+loadVoices();
+$('voiceSel').onchange=e=>{voice=voices[+e.target.value]||voice;};
+
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const slug=t=>t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+let curAudio=null;
+// Eerst de opgenomen zin (audio/<slug>.mp3, stem Laura van ElevenLabs); bestaat die niet, dan de computerstem.
+function say(text,show=text){
+  bubble.textContent=show;bear.classList.add('talk');
+  return new Promise(res=>{
+    let done=false,fell=false;
+    const fin=()=>{if(done)return;done=true;clearTimeout(tm);bear.classList.remove('talk');res();};
+    const tm=setTimeout(fin,2500+text.length*120);
+    const tts=()=>{if(fell)return;fell=true;
+      if(!('speechSynthesis' in window)||!voice)return;
+      const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=.95;u.pitch=JUF.pitch;
+      u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);};
+    if(curAudio){curAudio.pause();curAudio=null;}
+    if('speechSynthesis' in window)speechSynthesis.cancel();
+    const a=new Audio('audio-en/'+slug(text)+'.mp3');curAudio=a;
+    a.onended=fin;a.onerror=tts;a.play().catch(tts);
+  });
+}
+const amount=n=>n===1?'There is one.':`There are ${WORDS[n]}.`;
+// Getallen altijd als losse opname (per getal de beste uitspraak gekozen), de rest van de zin apart.
+async function sayAmount(n){await say(n===1?'There is':'There are',amount(n));await say(WORDS[n],amount(n));}
+
+/* ---------- geluid ---------- */
+let ac=null;
+function tone(f,d,type='sine',vol=.14,when=0){
+  try{ ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime+when,o=ac.createOscillator(),g=ac.createGain();
+    o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.05);}catch(e){}
+}
+const sfx={
+  count:i=>tone(392*Math.pow(2,(i-1)*2/12),.22,'triangle',.13),
+  win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.12,i*.09)),
+  soft:()=>tone(247,.25,'sine',.09)
+};
+
+/* ---------- sterren ---------- */
+const STAR='<svg class="star" viewBox="0 0 40 40"><path d="M20 3l5 10.5 11.5 1.6-8.3 8 2 11.4L20 29l-10.2 5.5 2-11.4-8.3-8L15 13.5z" stroke-linejoin="round"/></svg>';
+function drawStars(el,filled){el.innerHTML='';for(let i=0;i<S.rounds;i++){el.insertAdjacentHTML('beforeend',STAR);if(i<filled)el.lastChild.classList.add('on');}}
+
+/* ---------- appels plaatsen ---------- */
+function positions(n,layout){
+  if(layout==='dice'&&DICE[n]) return DICE[n].map(([gx,gy])=>[32+gx*18,22+gy*28]);
+  if(layout==='rows'||layout==='dice'){
+    const out=[],r1=Math.min(n,5),r2=n-r1;
+    for(let i=0;i<r1;i++)out.push([18+i*16,r2?32:50]);
+    for(let i=0;i<r2;i++)out.push([18+i*16,70]);
+    return out;
+  }
+  for(let attempt=0;attempt<60;attempt++){
+    const pts=[];let tries=0;
+    while(pts.length<n&&tries<800){tries++;
+      const p=[10+Math.random()*80,16+Math.random()*68];
+      if(pts.every(q=>Math.hypot(p[0]-q[0],(p[1]-q[1])*.5625)>13.5))pts.push(p);}
+    if(pts.length===n)return pts.sort((a,b)=>a[0]-b[0]);
+  }
+  return positions(n,'rows');
+}
+function renderApples(n,layout){
+  field.innerHTML='';field.classList.remove('win');
+  const size=layout==='dice'?13:layout==='rows'?11.5:10.5;
+  positions(n,layout).forEach(([x,y],i)=>{
+    const b=document.createElement('button');
+    b.className='apple enter';b.style.left=x+'%';b.style.top=y+'%';b.style.width=size+'%';b.style.animationDelay=(i*60)+'ms';
+    b.setAttribute('aria-label','apple');
+    b.innerHTML='<svg viewBox="0 0 100 100"><use href="#appleG"/></svg><span class="badge"></span>';
+    b.onclick=()=>tapApple(b);
+    field.appendChild(b);
+  });
+}
+function markApple(b,k){b.classList.add('counted');b.querySelector('.badge').textContent=k;}
+function tapApple(b){
+  if(b.classList.contains('counted'))return;
+  S.count++;markApple(b,S.count);sfx.count(S.count);say(WORDS[S.count]);
+}
+
+/* ---------- antwoorden ---------- */
+function options(n,k,max){
+  const set=new Set([n]);const near=[n-1,n+1,n-2,n+2,n+3,n-3].filter(v=>v>=1&&v<=Math.max(max,3));
+  near.sort(()=>Math.random()-.5);
+  for(const v of near){if(set.size>=k)break;set.add(v);}
+  return [...set].sort((a,b)=>a-b);
+}
+function renderChoices(n,k,max){
+  answers.innerHTML='';
+  options(n,k,max).forEach(v=>{
+    const t=document.createElement('button');t.className='tile';t.dataset.v=v;t.setAttribute('aria-label',WORDS[v]);
+    t.innerHTML=`<span class="num">${v}</span><span class="dots" style="grid-template-columns:repeat(${Math.min(v,5)},11px)">${'<i></i>'.repeat(v)}</span>`;
+    t.onclick=()=>choose(t,v);
+    answers.appendChild(t);
+  });
+}
+const busy=on=>app.classList.toggle('busy',on);
+
+/* ---------- spelverloop ---------- */
+async function newRound(){
+  const L=LEVELS[S.level];let n;
+  do{n=1+Math.floor(Math.random()*L.max);}while(n===S.n&&L.max>1);
+  Object.assign(S,{n,attempts:0,helped:false,count:0});
+  renderApples(n,L.layout);renderChoices(n,L.choices,L.max);
+  busy(true);await wait(450);await say('How many apples can you see?');busy(false);
+}
+async function choose(tile,v){
+  if(v===S.n){
+    busy(true);tile.classList.add('right');tile.classList.remove('pulse');field.classList.add('win');sfx.win();
+    await say('Well done!');await sayAmount(S.n);
+    finishRound();return;
+  }
+  S.attempts++;sfx.soft();tile.classList.add('shake','nope');
+  if(S.attempts===1&&!S.helped){busy(true);await say('Nearly! Count with me. Tap the apples.');busy(false);}
+  else await countTogether();
+}
+async function countTogether(){
+  busy(true);S.helped=true;
+  await say('Let\'s count together.');
+  const apples=[...field.querySelectorAll('.apple')];
+  apples.forEach(a=>{a.classList.remove('counted');});
+  for(let i=0;i<apples.length;i++){markApple(apples[i],i+1);sfx.count(i+1);await say(WORDS[i+1]);await wait(120);}
+  S.count=apples.length;
+  await sayAmount(S.n);await say('Now tap the right number.');
+  answers.querySelector(`[data-v="${S.n}"]`).classList.add('pulse');
+  busy(false);
+}
+async function finishRound(){
+  S.round++;
+  S.log.push({r:S.round,n:S.n,att:S.attempts+1,helped:S.helped,lvl:S.level});
+  drawStars($('stars'),S.round);
+  let msg='';
+  if(S.attempts===0&&!S.helped){S.streak++;S.struggle=0;
+    if(S.streak>=3&&S.level<LEVELS.length-1){S.level++;S.streak=0;msg='You\'re getting better and better! Now it gets a bit harder.';}}
+  else{S.streak=0;if(S.helped){S.struggle++;if(S.struggle>=2&&S.level>0){S.level--;S.struggle=0;}}}
+  await wait(500);
+  if(msg)await say(msg);
+  if(S.round>=S.rounds){endSession();return;}
+  newRound();
+}
+async function endSession(){
+  drawStars($('endStars'),S.round);
+  $('end').hidden=false;bear.classList.add('sleep');
+  await say('Brilliant counting! Giorgio and I are going to sleep now. See you tomorrow!');
+}
+function startSession(){
+  S.round=0;S.n=0;drawStars($('stars'),0);bear.classList.remove('sleep');
+  $('start').hidden=true;$('end').hidden=true;newRound();
+}
+$('playBtn').onclick=async()=>{tone(1,.01,'sine',0);loadVoices();$('start').hidden=true;busy(true);
+  await say('Hi! I\'m Romeo, and this is my dog Giorgio. Will you help me count apples?');startSession();};
+$('againBtn').onclick=startSession;
+
+/* ---------- ouders ---------- */
+LEVELS.forEach((l,i)=>$('levelSel').insertAdjacentHTML('beforeend',`<option value="${i}">${i+1}: ${l.label}</option>`));
+$('parentBtn').onclick=()=>{$('parent').hidden=false;$('gate').hidden=false;$('dash').hidden=true;};
+$('closeGate').onclick=$('closeDash').onclick=()=>{$('parent').hidden=true;};
+let holdT=null,holdStart=0;
+const holdBtn=$('holdBtn'),holdBar=$('holdBar');
+function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/3000);holdBar.style.width=(p*100)+'%';
+  if(p>=1){holdT=null;openDash();return;}holdT=requestAnimationFrame(holdTick);}
+holdBtn.addEventListener('pointerdown',e=>{e.preventDefault();holdStart=performance.now();holdT=requestAnimationFrame(holdTick);});
+['pointerup','pointerleave','pointercancel'].forEach(ev=>holdBtn.addEventListener(ev,()=>{if(holdT){cancelAnimationFrame(holdT);holdT=null;}holdBar.style.width='0';}));
+function openDash(){
+  holdBar.style.width='0';$('gate').hidden=true;$('dash').hidden=false;
+  $('sRounds').textContent=S.log.length;
+  $('sFirst').textContent=S.log.filter(l=>l.att===1).length;
+  $('sHelp').textContent=S.log.filter(l=>l.helped).length;
+  $('sLevel').textContent=`${S.level+1}: ${LEVELS[S.level].label}`;
+  $('levelSel').value=S.level;$('roundSel').value=S.rounds;
+  $('sLog').innerHTML=S.log.slice().reverse().map(l=>`<tr><td>${l.r}</td><td>${l.n}</td><td>${l.att}${l.helped?' (counted together)':''}</td><td>${l.lvl+1}</td></tr>`).join('')||'<tr><td colspan="4">Nothing played yet.</td></tr>';
+}
+$('levelSel').onchange=e=>{S.level=+e.target.value;S.streak=0;S.struggle=0;};
+$('roundSel').onchange=e=>{S.rounds=+e.target.value;drawStars($('stars'),S.round);};
+$('testVoice').onclick=()=>say('How many apples can you see?');
+
+drawStars($('stars'),0);
+
+function allLines(){
+  const L=['Hi! I\'m Romeo, and this is my dog Giorgio. Will you help me count apples?','How many apples can you see?','Nearly! Count with me. Tap the apples.',
+    'Let\'s count together.','You\'re getting better and better! Now it gets a bit harder.','Brilliant counting! Giorgio and I are going to sleep now. See you tomorrow!'];
+  L.push('Well done!','There is','There are','Now tap the right number.');
+  for(let n=1;n<=10;n++)L.push(WORDS[n]);
+  return [...new Set(L)];
+}
+</script>
+<script>/* Bella kijkt blij bij een compliment */(function(){const b=document.getElementById('bear'),u=document.getElementById('bubble');if(!b||!u)return;let t;new MutationObserver(()=>{if(/^(Well done|Super|Brilliant|Great|Clever|Yes[!,]|Hooray|Good job|Wow|Lovely|That's right|Perfect|Exactly|Very good|Fantastic|Amazing|Yum!)/i.test(u.textContent.trim())&&!b.classList.contains('sleep')){b.classList.add('happy');clearTimeout(t);t=setTimeout(()=>b.classList.remove('happy'),1800);}}).observe(u,{childList:true,characterData:true,subtree:true});})();</script>
+<script src="img/e/lijst.js"></script><script src="plaatjes.js"></script><script src="feest.js"></script>
+</body>
+</html>

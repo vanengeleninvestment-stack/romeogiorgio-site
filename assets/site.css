@@ -337,3 +337,94 @@ details p { margin: 0 0 16px; color: var(--ink-soft); }
 .kp-app img { width: 130px; justify-self: center; }
 .kp-app h2 { margin-top: 0; }
 @media (min-width: 700px) { .kp-app { grid-template-columns: 150px 1fr; } }
+
+/* ============ Vernieuwing 15 nov 2026 ============ */
+body { font-size: 18px; }
+h2 { font-size: clamp(2rem, 4.6vw, 3rem); font-weight: 700; letter-spacing: -.02em; }
+h3 { font-weight: 700; }
+section { padding: clamp(64px, 9vw, 120px) 0; }
+.sub { font-size: clamp(1.08rem, 2vw, 1.22rem); line-height: 1.55; margin-bottom: 2.6em; }
+.top { background: rgba(255, 255, 255, .88); box-shadow: 0 1px 0 rgba(19, 48, 107, .08); }
+.top .logo img { height: 52px; }
+@media (min-width: 860px) { .top { padding: 8px 28px; } .top .logo img { height: 60px; } .nav { gap: 28px; } }
+
+/* Hero met groot sfeerbeeld */
+.hero { padding: 0; background: var(--sky-light); overflow: hidden; }
+.hero-bg img { width: 100%; height: auto; display: block; }
+.hero-in { display: block; max-width: 1200px; padding: 22px 16px 48px; }
+.hero-copy { padding: 0; max-width: 560px; }
+.hero h1 { font-size: clamp(2.2rem, 7vw, 4.1rem); line-height: 1.04; letter-spacing: -.025em; margin-bottom: .25em; }
+.tagline { font-size: clamp(1.3rem, 3.2vw, 1.75rem); margin: 0 0 .5em; color: var(--orange-deep); }
+.hero .lead { color: var(--ink); opacity: .82; max-width: 520px; }
+.kicker { background: var(--blue); color: #fff; box-shadow: none; letter-spacing: .02em; }
+.hero .soon { box-shadow: 0 2px 4px rgba(19, 48, 107, .06), 0 24px 48px -20px rgba(19, 48, 107, .45); border: 0; }
+@media (min-width: 900px) {
+  .hero { position: relative; min-height: clamp(600px, 56vw, 820px); display: flex; align-items: center; }
+  .hero-bg { position: absolute; inset: 0; }
+  .hero-bg img { width: 100%; height: 100%; object-fit: cover; object-position: 70% 50%; }
+  .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(231, 245, 252, .9) 0%, rgba(231, 245, 252, .55) 34%, rgba(231, 245, 252, 0) 52%); pointer-events: none; }
+  .hero-in { position: relative; z-index: 2; width: 100%; margin: 0 auto; padding: 60px 40px; }
+  .hero-copy { max-width: 540px; }
+}
+@media (min-width: 1500px) { .hero-in { max-width: 1320px; } }
+
+/* Demo: tekst naast iPad */
+.demo { background: #fff; }
+.demo-in { display: grid; gap: 32px; align-items: center; }
+.demo-copy h2, .demo-copy .sub { text-align: left; margin-left: 0; }
+.demo-copy .sub { margin-bottom: 1em; }
+.demo-note { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); font-weight: 600; font-size: .98rem; }
+.demo-note svg { width: 22px; height: 22px; color: var(--blue); flex: none; }
+.demo-ipad { max-width: 680px; width: 100%; justify-self: center; border-radius: 36px; padding: 14px; background: #1d1f24; box-shadow: 0 40px 70px -30px rgba(19, 48, 107, .55); }
+.demo-screen { background: var(--shot) center / cover no-repeat, var(--sky-light); }
+.demo-screen::before { content: ''; position: absolute; inset: 0; background: rgba(231, 245, 252, .55); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.demo-start { z-index: 1; }
+.demo-card { display: flex; flex-direction: column; align-items: center; gap: 12px; background: #fff; border-radius: 28px; padding: 22px 34px 26px; box-shadow: 0 24px 50px -24px rgba(19, 48, 107, .55); }
+.demo-card img { width: clamp(72px, 12vw, 104px); }
+@media (min-width: 900px) { .demo-in { grid-template-columns: .8fr 1.2fr; gap: 64px; } }
+@media (max-width: 699px) { .demo-screen { aspect-ratio: 4 / 3; } .demo-card { padding: 16px 20px 18px; } }
+
+/* Romeo & Giorgio in actie: verticale clips */
+.reels { display: flex; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 4px 20px; margin: 0 -16px; padding-left: 16px; scrollbar-width: none; }
+.reels::-webkit-scrollbar { display: none; }
+.reel { flex: 0 0 min(62vw, 260px); margin: 0; scroll-snap-align: center; }
+.reel video { width: 100%; aspect-ratio: 9 / 16; object-fit: cover; border-radius: 26px; background: var(--sky); box-shadow: 0 24px 40px -22px rgba(19, 48, 107, .6); }
+.reel figcaption { font: 700 1.1rem var(--head); text-align: center; margin-top: 14px; }
+@media (min-width: 900px) { .reels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; overflow: visible; margin: 0; padding: 0; } .reel { flex: none; } }
+
+/* Werelden: gelijke kaarten */
+.world-grid { align-items: stretch; }
+.world { display: flex; flex-direction: column; padding: 24px; border-radius: 28px; }
+.world li { background: var(--sky-light); }
+.worlds { background: #fff; }
+
+/* Stappen */
+.steps li { border-radius: 28px; padding: 28px; border: 0; }
+.steps li:nth-child(2) .num { background: var(--orange); box-shadow: 0 3px 0 var(--orange-deep); }
+.steps li:nth-child(3) .num { background: var(--grass); box-shadow: 0 3px 0 #1f7a51; }
+
+/* Rustig en veilig: donkere band voor contrast */
+.calm.dark { background: var(--ink); color: #fff; }
+.calm.dark h2, .calm.dark h3 { color: #fff; }
+.calm.dark .calm-list p { color: rgba(255, 255, 255, .78); }
+.calm.dark .tick { background: var(--yellow); color: var(--ink); box-shadow: none; }
+.calm.dark .soon-mini { color: var(--yellow); }
+.calm.dark .calm-art { filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .35)); }
+
+/* Prijzen */
+.prices { background: var(--sky-light); }
+.plan { border-radius: 28px; border: 0; }
+.plan-year { border: 3px solid var(--yellow); }
+
+/* FAQ en cadeau */
+.faq.band { background: #fff; }
+details { border-radius: 20px; }
+.gift-teaser { background: #fff6dc; }
+img.gift-box { width: 140px; height: auto; font-size: 0; filter: drop-shadow(0 18px 24px rgba(19, 48, 107, .25)); }
+
+/* Einde */
+.end { background: linear-gradient(180deg, var(--sky-light), var(--sky)); }
+/* Schermen direct onder de hero */
+.shots.band { background: #fff; padding-top: clamp(56px, 7vw, 96px); }
+.demo { background: var(--sky-light); }
+.meet.band { background: #fff; }

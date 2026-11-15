@@ -39,8 +39,10 @@
 </header>
 <main id="main">
 <section class="hero">
-  <div class="sky" aria-hidden="true"><span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span></div>
-<svg class="hill" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C 240 20 480 20 720 55 C 960 90 1200 80 1440 40 L1440 120 L0 120 Z" fill="#a9da82"/><path d="M0 88 C 300 50 560 60 800 80 C 1040 100 1240 92 1440 64 L1440 120 L0 120 Z" fill="#8ccb5e"/></svg>
+  <picture class="hero-bg">
+    <source media="(min-width: 900px)" srcset="/assets/img/hero-1440.webp 1440w, /assets/img/hero-2400.webp 2400w" sizes="100vw">
+    <img src="/assets/img/hero-m.webp" alt="Romeo winkt, mit seinem Hund Giorgio" width="1000" height="816" fetchpriority="high">
+  </picture>
   <div class="hero-in">
     <div class="hero-copy">
       <p class="kicker">Lern-App für Kinder · 4–6 Jahre</p>
@@ -56,25 +58,31 @@
 </form>
       <ul class="badges"><li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Keine Werbung</li><li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Funktioniert offline</li><li><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 10.5l3.2 3.2L15 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Für iPad</li></ul>
     </div>
-    <div class="hero-art">
-      <div class="hero-ipad" aria-hidden="true"><img src="/assets/shots/de/menu-640.webp" alt="" width="640" height="480"></div>
-      <p class="bubble">Hallo! Spielen wir zusammen?</p>
-      <img class="romeo" src="/assets/img/romeo-zwaai.webp" alt="Romeo winkt, mit seinem Hund Giorgio" width="393" height="520" fetchpriority="high">
-    </div>
   </div>
 </section>
 
-<section class="demo" id="demo">
+<section class="shots band">
   <div class="wrap">
-    <h2>Probier es selbst</h2>
-    <p class="sub">Spiel hier direkt ein Spiel aus der App, genau wie dein Kind später.</p>
+    <h2>Ein Blick in die App</h2>
+  </div>
+  <div class="shot-row" tabindex="0" aria-label="Ein Blick in die App"><figure class="shot"><div class="ipad"><img src="/assets/shots/de/menu-640.webp" srcset="/assets/shots/de/menu-640.webp 640w, /assets/shots/de/menu.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Wähl eine Welt und ein Spiel" width="640" height="480" loading="lazy"></div><figcaption>Wähl eine Welt und ein Spiel</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/appels-640.webp" srcset="/assets/shots/de/appels-640.webp 640w, /assets/shots/de/appels.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Zähl die Äpfel" width="640" height="480" loading="lazy"></div><figcaption>Zähl die Äpfel</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/sommetjes-640.webp" srcset="/assets/shots/de/sommetjes-640.webp 640w, /assets/shots/de/sommetjes.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Erste Rechenaufgaben" width="640" height="480" loading="lazy"></div><figcaption>Erste Rechenaufgaben</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/landen-640.webp" srcset="/assets/shots/de/landen-640.webp 640w, /assets/shots/de/landen.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Einmal um die Welt" width="640" height="480" loading="lazy"></div><figcaption>Einmal um die Welt</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/gevoelens-640.webp" srcset="/assets/shots/de/gevoelens-640.webp 640w, /assets/shots/de/gevoelens.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Wie fühlst du dich?" width="640" height="480" loading="lazy"></div><figcaption>Wie fühlst du dich?</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/abc-640.webp" srcset="/assets/shots/de/abc-640.webp 640w, /assets/shots/de/abc.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Das ABC" width="640" height="480" loading="lazy"></div><figcaption>Das ABC</figcaption></figure></div>
+</section>
+
+<section class="demo" id="demo">
+  <div class="wrap demo-in">
+    <div class="demo-copy">
+      <h2>Probier es selbst</h2>
+      <p class="sub">Spiel hier direkt ein Spiel aus der App, genau wie dein Kind später.</p>
+      <p class="demo-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Ton an: Romeo spricht</p>
+    </div>
     <div class="demo-ipad">
-      <div class="demo-screen">
+      <div class="demo-screen" style="--shot:url('/assets/shots/tanden-640.webp')">
         <button class="demo-start" type="button" data-src="/demo/appels-de.html">
-          <img src="/assets/img/tegel-appels.webp" alt="" width="120" height="120" loading="lazy">
-          <span class="demo-title">Zähl die Äpfel</span>
-          <span class="btn btn-main">▶ Demo spielen</span>
-          <span class="demo-note">🔊 Ton an: Romeo spricht</span>
+          <span class="demo-card">
+            <img src="/assets/img/tegel-appels.webp" alt="" width="120" height="120" loading="lazy">
+            <span class="demo-title">Zähl die Äpfel</span>
+            <span class="btn btn-main"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M6 4l10 6-10 6z" fill="currentColor"/></svg>Demo spielen</span>
+          </span>
         </button>
       </div>
     </div>
@@ -85,7 +93,7 @@
   <div class="wrap">
     <h2>Das sind Romeo und Giorgio</h2>
     <p class="sub">Romeo ist vier und sein Hund Giorgio ist immer dabei. Zusammen erklären sie jedes Spiel, geben einen Tipp, wenn es mal nicht klappt, und feiern jeden Stern.</p>
-    <div class="clips"><figure class="clip"><video muted loop playsinline preload="none" poster="/assets/video/zwaai.webp" data-src="/assets/video/zwaai.mp4" width="540" height="540"></video><figcaption>Hallo!</figcaption></figure><figure class="clip"><video muted loop playsinline preload="none" poster="/assets/video/tellen.webp" data-src="/assets/video/tellen.mp4" width="540" height="540"></video><figcaption>Zusammen zählen</figcaption></figure><figure class="clip"><video muted loop playsinline preload="none" poster="/assets/video/highfive.webp" data-src="/assets/video/highfive.mp4" width="540" height="540"></video><figcaption>High five!</figcaption></figure></div>
+    <div class="reels"><figure class="reel"><video muted loop playsinline preload="none" poster="/assets/video/ads/clip-11.jpg" data-src="/assets/video/ads/clip-11.mp4" width="540" height="960"></video><figcaption>Zusammen spielen</figcaption></figure><figure class="reel"><video muted loop playsinline preload="none" poster="/assets/video/ads/clip-13.jpg" data-src="/assets/video/ads/clip-13.mp4" width="540" height="960"></video><figcaption>Dann ab nach draußen</figcaption></figure><figure class="reel"><video muted loop playsinline preload="none" poster="/assets/video/ads/clip-2.jpg" data-src="/assets/video/ads/clip-2.mp4" width="540" height="960"></video><figcaption>Zählen mit Giorgio</figcaption></figure><figure class="reel"><video muted loop playsinline preload="none" poster="/assets/video/ads/clip-6.jpg" data-src="/assets/video/ads/clip-6.mp4" width="540" height="960"></video><figcaption>Schau, was ich kann!</figcaption></figure></div>
   </div>
 </section>
 
@@ -124,7 +132,7 @@
   </div>
 </section>
 
-<section class="calm">
+<section class="calm dark">
   <div class="wrap calm-in">
     <img class="calm-art" src="/assets/img/romeo-slaap.webp" alt="" width="431" height="520" loading="lazy">
     <div>
@@ -133,13 +141,6 @@
       <div class="cta-wrap"><a class="btn btn-main" href="#aanmelden">Sag mir Bescheid</a><span class="soon-mini">Bald im App Store</span></div>
     </div>
   </div>
-</section>
-
-<section class="shots band">
-  <div class="wrap">
-    <h2>Ein Blick in die App</h2>
-  </div>
-  <div class="shot-row" tabindex="0" aria-label="Ein Blick in die App"><figure class="shot"><div class="ipad"><img src="/assets/shots/de/menu-640.webp" srcset="/assets/shots/de/menu-640.webp 640w, /assets/shots/de/menu.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Wähl eine Welt und ein Spiel" width="640" height="480" loading="lazy"></div><figcaption>Wähl eine Welt und ein Spiel</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/appels-640.webp" srcset="/assets/shots/de/appels-640.webp 640w, /assets/shots/de/appels.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Zähl die Äpfel" width="640" height="480" loading="lazy"></div><figcaption>Zähl die Äpfel</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/sommetjes-640.webp" srcset="/assets/shots/de/sommetjes-640.webp 640w, /assets/shots/de/sommetjes.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Erste Rechenaufgaben" width="640" height="480" loading="lazy"></div><figcaption>Erste Rechenaufgaben</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/landen-640.webp" srcset="/assets/shots/de/landen-640.webp 640w, /assets/shots/de/landen.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Einmal um die Welt" width="640" height="480" loading="lazy"></div><figcaption>Einmal um die Welt</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/gevoelens-640.webp" srcset="/assets/shots/de/gevoelens-640.webp 640w, /assets/shots/de/gevoelens.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Wie fühlst du dich?" width="640" height="480" loading="lazy"></div><figcaption>Wie fühlst du dich?</figcaption></figure><figure class="shot"><div class="ipad"><img src="/assets/shots/de/abc-640.webp" srcset="/assets/shots/de/abc-640.webp 640w, /assets/shots/de/abc.webp 1100w" sizes="(max-width: 700px) 82vw, 560px" alt="Das ABC" width="640" height="480" loading="lazy"></div><figcaption>Das ABC</figcaption></figure></div>
 </section>
 
 <section class="prices" id="prijzen">
@@ -165,7 +166,7 @@
 
 <section class="gift-teaser">
   <div class="wrap gift-teaser-in">
-    <div class="gift-box" aria-hidden="true">🎁</div>
+    <img class="gift-box" src="/assets/img/cadeau.webp" alt="" width="360" height="360" loading="lazy">
     <div><h2>Ein Geschenk für ein kleines Kind?</h2><p class="lead">Schenk ein Jahr Spielen und Lernen mit Romeo und Giorgio. Schön zu Nikolaus, Weihnachten oder Geburtstag.</p><a class="btn" href="/de/cadeau/">Geschenkkarte gestalten</a></div>
   </div>
   <div class="wrap gift-teaser-in colour-teaser">
@@ -178,7 +179,7 @@
   <div class="sky" aria-hidden="true"><span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span></div>
 <svg class="hill" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 C 240 20 480 20 720 55 C 960 90 1200 80 1440 40 L1440 120 L0 120 Z" fill="#a9da82"/><path d="M0 88 C 300 50 560 60 800 80 C 1040 100 1240 92 1440 64 L1440 120 L0 120 Z" fill="#8ccb5e"/></svg>
   <div class="wrap end-in">
-    <img src="/assets/img/romeo-slaap.webp" alt="" width="431" height="520" loading="lazy">
+    <img src="/assets/img/romeo-zwaai.webp" alt="" width="393" height="520" loading="lazy">
     <div><h2>Morgen wieder ein neues Spiel?</h2><p class="lead">Romeo und Giorgio sind bereit. Lade die App und spiel sofort 3 Spiele gratis.</p><form class="soon" data-where="end"  data-mail="hallo@romeogiorgio.com" data-subject="Sag mir Bescheid, wenn Romeo &amp; Giorgio da ist">
   <p class="soon-label">Bald im App Store</p>
   <p class="soon-text">Hinterlass deine E-Mail-Adresse, dann sagen wir Bescheid, sobald du die App laden kannst.</p>

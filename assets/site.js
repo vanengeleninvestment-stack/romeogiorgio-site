@@ -5,7 +5,8 @@
 
   // 1. Taal: eerste bezoek aan de NL-hoofdpagina met een andere browsertaal → doorsturen.
   var chosen = store('rg-lang');
-  if (!chosen && RG.lang === 'nl' && location.pathname === '/' && !params.has('stay')) {
+  var fromAd = params.has('utm_source') || params.has('fbclid');
+  if (!chosen && !fromAd && RG.lang === 'nl' && location.pathname === '/' && !params.has('stay')) {
     var nav = (navigator.languages || [navigator.language || 'nl']).map(function (l) { return String(l).slice(0, 2).toLowerCase(); });
     var first = nav.find(function (l) { return RG.paths[l]; });
     if (first && first !== 'nl') { location.replace(RG.paths[first] + location.search); return; }
@@ -46,13 +47,33 @@
     a.addEventListener('click', function () { track('Lead', { content_name: 'appstore', content_category: a.dataset.where || '' }); });
   });
 
+  // 3b. Android: de app is alleen voor iPhone/iPad → wachtlijst in plaats van App Store-knop.
+  var isAndroid = /Android/i.test(navigator.userAgent);
+  var tpl = document.getElementById('android-tpl');
+  if (isAndroid && tpl) {
+    document.documentElement.classList.add('is-android');
+    var first = null;
+    document.querySelectorAll('main .cta-wrap').forEach(function (w, i) {
+      var f = tpl.content.firstElementChild.cloneNode(true);
+      f.querySelectorAll('[id]').forEach(function (el) { el.id += '-' + i; });
+      f.querySelector('label').setAttribute('for', 'mail-android-' + i);
+      if (!first) { f.id = 'android'; first = f; }
+      w.replaceWith(f);
+    });
+    document.querySelectorAll('a.js-store').forEach(function (a) {
+      a.classList.remove('js-store'); a.href = first ? '#android' : (RG.paths[RG.lang] || '/') + '#android';
+      if (a.closest('.sticky')) a.textContent = tpl.content.querySelector('.soon-label').textContent;
+    });
+  }
+
   // 4. Binnenkort-formulier.
   document.querySelectorAll('form.soon').forEach(function (f) {
     f.addEventListener('submit', function (e) {
       e.preventDefault();
       var mail = f.querySelector('input[type=email]').value.trim();
       if (!mail) return;
-      track('Lead', { content_name: 'waitlist', content_category: f.dataset.where || '' });
+      if (f.dataset.where === 'android') { if (pixelOn && window.fbq) window.fbq('trackCustom', 'AndroidWaitlist'); }
+      else track('Lead', { content_name: 'waitlist', content_category: f.dataset.where || '' });
       var done = function () { f.classList.add('done'); f.querySelector('.soon-thanks').hidden = false; };
       var rg = window.RG || {};
       if (rg.sb && rg.sb.url) {

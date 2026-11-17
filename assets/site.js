@@ -19,7 +19,7 @@
     });
   });
 
-  // 2. Meta-pixel, alleen na toestemming.
+  // 2. Meta-pixel.
   var pixelOn = false;
   function loadPixel() {
     if (!RG.pixel || pixelOn) return;
@@ -29,14 +29,8 @@
     window.fbq('track', 'PageView');
   }
   function track(ev, data) { if (pixelOn && window.fbq) window.fbq('track', ev, data || {}); }
-  var consent = document.querySelector('.consent');
-  if (RG.pixel && consent) {
-    var c = store('rg-consent');
-    if (c === 'yes') loadPixel();
-    else if (c !== 'no') consent.hidden = false;
-    consent.querySelector('.js-consent-yes').addEventListener('click', function () { store('rg-consent', 'yes'); consent.hidden = true; loadPixel(); });
-    consent.querySelector('.js-consent-no').addEventListener('click', function () { store('rg-consent', 'no'); consent.hidden = true; });
-  }
+  // Pixel laadt direct (cookiebanner verwijderd op verzoek van Lars, 17 nov 2026).
+  if (RG.pixel) loadPixel();
 
   // 3. App Store-links: campagne meegeven (ct, max 40 tekens).
   var camp = params.get('utm_campaign') || params.get('utm_content') || params.get('utm_source') || '';

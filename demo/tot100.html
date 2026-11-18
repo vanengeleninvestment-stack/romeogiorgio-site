@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<script src="profiel.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Romeo &amp; Giorgio tot 100</title>
+<link rel="stylesheet" href="fonts/fredoka.css">
+<style>
+/* Honderdveld: Beer Bella links, 10x10-veld in het midden (elke rij een eigen kleur = tientallen), rechts het grote getal. Bewust één thema. */
+:root{
+  --sky:#C9E6F5; --sky2:#EEF8FD; --ink:#22324A; --card:#FFFFFF; --soft:#5B6B82; --hl:#FFD84D; --empty:#E3EBF3;
+  --bear:#A86B3C; --bear-l:#E8B98A; --bear-d:#3B2416;
+  --r0:#E0412F; --r1:#F08A24; --r2:#E9B308; --r3:#6BB04A; --r4:#2FA38F; --r5:#2F86C9; --r6:#4C62D1; --r7:#7C5CC4; --r8:#C24F9E; --r9:#8A6A4F;
+  --f:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:var(--f);color:var(--ink);background:var(--sky);overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+#app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr;background:linear-gradient(var(--sky2),var(--sky));
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:12px 22px;gap:12px}
+.progress{flex:1;max-width:420px;height:16px;background:rgba(255,255,255,.7);border-radius:999px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--hl);transition:width .3s}
+.parentbtn{font-size:15px;font-weight:500;color:var(--soft);background:rgba(255,255,255,.55);padding:8px 14px;border-radius:999px}
+.scene{display:grid;grid-template-columns:minmax(130px,17%) 1fr minmax(170px,24%);gap:18px;padding:0 22px 18px;min-height:0}
+.bearcol{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:0}
+.bubble{background:var(--card);border-radius:22px;padding:12px 14px;font-size:clamp(15px,1.7vw,20px);font-weight:500;text-align:center;
+  box-shadow:0 4px 0 rgba(34,50,74,.12);position:relative;min-height:2.6em;display:grid;place-items:center;max-width:100%}
+.bubble::after{content:"";position:absolute;bottom:-12px;left:50%;margin-left:-12px;border:12px solid transparent;border-bottom:0;border-top-color:var(--card)}
+.bear{width:min(100%,170px);height:auto}
+.bear.talk{animation:bob .5s ease-in-out infinite alternate}
+@keyframes bob{to{transform:translateY(-5px) rotate(-2deg)}}
+
+.gridwrap{container-type:size;display:grid;place-items:center;min-width:0;min-height:0}
+.grid{width:min(100cqw,100cqh);aspect-ratio:1;display:grid;grid-template-columns:repeat(10,1fr);gap:1.2%;
+  background:var(--card);border-radius:24px;padding:2.2%;box-shadow:0 8px 0 rgba(34,50,74,.1)}
+.cell{border-radius:50%;background:var(--empty);display:grid;place-items:center;font-weight:600;color:#fff;
+  font-size:clamp(10px,2.6cqmin,26px);font-variant-numeric:tabular-nums;transition:transform .15s,background .2s}
+.cell.on{background:var(--c)}
+.cell.on span{opacity:1}
+.cell span{opacity:0}
+.cell.next{background:#fff;box-shadow:inset 0 0 0 4px var(--c);animation:pulse 1s ease-in-out infinite}
+.cell.just{animation:pop .35s cubic-bezier(.3,1.6,.5,1)}
+.cell.nudge{animation:wig .4s}
+.grid.rowwin .cell.on{animation:hop .4s ease-in-out}
+@keyframes pulse{50%{transform:scale(1.15)}}
+@keyframes pop{from{transform:scale(.3)}}
+@keyframes wig{25%{transform:rotate(-12deg) scale(1.15)}75%{transform:rotate(12deg) scale(1.15)}}
+@keyframes hop{50%{transform:translateY(-25%)}}
+
+.numcol{display:flex;flex-direction:column;justify-content:center;gap:14px;min-width:0}
+.bignum{background:var(--card);border-radius:28px;box-shadow:0 8px 0 rgba(34,50,74,.1);aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:6px solid var(--c,var(--empty))}
+.bignum b{font-size:clamp(64px,10vw,140px);line-height:1;font-weight:700;color:var(--c,var(--soft));font-variant-numeric:tabular-nums}
+.bignum small{font-size:clamp(14px,1.7vw,20px);color:var(--soft);text-align:center;padding:0 8px;overflow-wrap:anywhere}
+.bignum.just b{animation:pop .3s cubic-bezier(.3,1.6,.5,1)}
+.tens{display:flex;flex-direction:column;gap:5px;align-items:center}
+.tenrow{display:flex;gap:4px}
+.tenrow i{width:12px;height:12px;border-radius:50%;background:var(--c)}
+.tenlabel{font-size:14px;color:var(--soft);text-align:center}
+
+.overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(var(--sky2),var(--sky));z-index:5;padding:24px}
+.card{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;max-width:520px}
+.card h1{font-size:clamp(36px,6vw,60px);margin:0;font-weight:700}
+.card p{margin:0;font-size:20px;color:var(--soft)}
+.play{font-size:34px;font-weight:700;background:var(--r5);color:#fff;border-radius:999px;padding:18px 54px;box-shadow:0 8px 0 #1F5F92}
+.play:active{transform:translateY(5px);box-shadow:0 3px 0 #1F5F92}
+.links{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.links a{font-size:18px;font-weight:600;color:var(--soft);text-underline-offset:4px}
+.small{font-size:14px;color:var(--soft)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:4}
+
+.parent{position:fixed;inset:0;background:rgba(34,50,74,.45);display:grid;place-items:center;z-index:6;padding:20px}
+.panel{background:var(--card);border-radius:24px;padding:24px;width:min(520px,100%);display:flex;flex-direction:column;gap:14px;font-family:system-ui,-apple-system,sans-serif}
+.panel h2{margin:0;font-family:var(--f);font-size:26px}
+.hold{position:relative;overflow:hidden;background:var(--sky2);border-radius:16px;padding:22px;font-size:18px;font-weight:600;text-align:center;width:100%}
+.hold span{position:absolute;inset:0 auto 0 0;width:0;background:var(--hl);opacity:.7}
+.hold b{position:relative}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:15px}
+.btn{font:inherit;font-size:15px;padding:8px 12px;border-radius:10px;border:1px solid #CBD5E1;background:#fff}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+@media (orientation:portrait){
+  .scene{grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr}
+  .gridwrap{grid-column:1/-1;grid-row:2}
+  .bearcol{flex-direction:row}.bear{width:90px}.bubble::after{display:none}
+  .bignum{aspect-ratio:auto;padding:10px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+</style>
+<style>/* Bella-tekening */.bear img{width:100%;height:auto;display:block;pointer-events:none}.bear .happy,.bear .closed{display:none}.bear.happy .open{display:none}.bear.happy .happy{display:block}.bear.sleep .open,.bear.sleep .happy{display:none}.bear.sleep .closed{display:block}</style>
+<style>/* terugknop */.topleft{display:flex;align-items:center;gap:12px;min-width:0}.homebtn{flex:none;width:54px;height:54px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 3px 0 rgba(34,50,74,.14);touch-action:manipulation}.homebtn svg{width:30px;height:30px}.homebtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(34,50,74,.14)}</style>
+<style>.homebtn,.parentbtn,a[href="index.html"]{display:none!important}</style></head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="topleft"><a class="homebtn" href="index.html" aria-label="Terug naar het menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2" fill="none" stroke="#22324A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9.5h4.5V14h3v5.5H18V10" fill="#FFD84D" stroke="#22324A" stroke-width="2.2" stroke-linejoin="round"/></svg></a><div class="progress" aria-label="Voortgang"><span id="prog"></span></div></div>
+    <button class="parentbtn" id="parentBtn">Ouders</button>
+  </div>
+  <div class="scene">
+    <div class="bearcol">
+      <div class="bubble" id="bubble" aria-live="polite">Hallo!</div>
+      <div class="bear" id="bear" aria-hidden="true"><img class="open" src="img/romeo-zwaai.webp" alt=""><img class="happy" src="img/romeo-blij.webp" alt=""><img class="closed" src="img/romeo-slaap.webp" alt=""></div>
+    </div>
+    <div class="gridwrap"><div class="grid" id="grid" aria-label="Honderdveld"></div></div>
+    <div class="numcol">
+      <div class="bignum" id="bignum"><b id="bigN">0</b><small id="bigW">Tik op het rondje</small></div>
+      <div class="tens" id="tens"></div>
+    </div>
+  </div>
+</div>
+<canvas class="confetti" id="confetti"></canvas>
+
+<div class="overlay" id="start">
+  <div class="card">
+    <img src="img/romeo-zwaai.webp" alt="" style="height:170px;width:auto;display:block;margin:0 auto">
+    <h1>Tel tot 100</h1>
+    <p>Tik de rondjes één voor één aan en tel mee met Romeo en Giorgio</p>
+    <button class="play" id="playBtn">▶ Spelen</button>
+    <div class="links"><a href="index.html">← Menu</a></div>
+  </div>
+</div>
+
+<div class="parent" id="parent" hidden>
+  <div class="panel">
+    <div id="gate">
+      <h2>Voor ouders</h2>
+      <p style="color:var(--soft);margin:6px 0 14px">Houd de knop 3 seconden ingedrukt.</p>
+      <button class="hold" id="holdBtn"><span id="holdBar"></span><b>Ingedrukt houden</b></button>
+      <div class="row" style="margin-top:12px"><button class="btn" id="closeGate">Terug naar het spel</button></div>
+    </div>
+    <div id="dash" hidden>
+      <h2>Tel tot 100</h2>
+      <p id="dashText" style="margin:0"></p>
+      <div class="row"><button class="btn" id="resetBtn">Opnieuw beginnen bij 1</button><button class="btn" id="jumpBtn">Test: spring naar 95 / 195</button></div>
+      <div class="row"><button class="btn primary" id="closeDash">Terug naar het spel</button></div>
+    </div>
+  </div>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <g id="bearUse">
+    <circle cx="26" cy="28" r="17" fill="#A86B3C"/><circle cx="94" cy="28" r="17" fill="#A86B3C"/>
+    <circle cx="26" cy="28" r="8" fill="#E8B98A"/><circle cx="94" cy="28" r="8" fill="#E8B98A"/>
+    <circle cx="60" cy="64" r="45" fill="#A86B3C"/><ellipse cx="60" cy="82" rx="23" ry="17" fill="#E8B98A"/>
+    <ellipse cx="60" cy="73" rx="8" ry="6" fill="#3B2416"/>
+    <circle cx="43" cy="56" r="5.5" fill="#3B2416"/><circle cx="77" cy="56" r="5.5" fill="#3B2416"/>
+    <circle cx="45" cy="54" r="1.8" fill="#fff"/><circle cx="79" cy="54" r="1.8" fill="#fff"/>
+    <path d="M51 85q9 7 18 0" stroke="#3B2416" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="34" cy="72" rx="6" ry="4" fill="#E78A7A" opacity=".55"/><ellipse cx="86" cy="72" rx="6" ry="4" fill="#E78A7A" opacity=".55"/>
+  </g>
+</defs></svg>
+
+<script>
+/* ---------- Nederlandse telwoorden 1-100 ---------- */
+const BASE=['','één','twee','drie','vier','vijf','zes','zeven','acht','negen','tien','elf','twaalf','dertien','veertien','vijftien','zestien','zeventien','achttien','negentien'];
+const TENS=['','tien','twintig','dertig','veertig','vijftig','zestig','zeventig','tachtig','negentig'];
+const UNIT=['','een','twee','drie','vier','vijf','zes','zeven','acht','negen'];
+function word1(n){
+  if(n===100)return'honderd';
+  if(n<20)return BASE[n];
+  const t=Math.floor(n/10),u=n%10;
+  if(!u)return TENS[t];
+  const un=UNIT[u];return un+(un.endsWith('e')?'ën':'en')+TENS[t];
+}
+const W2=r=>'honderd'+(r===1?'een':word1(r));function word(n){if(n===200)return 'tweehonderd';if(n>100)return W2(n-100);return word1(n);}
+const ROWC=Array.from({length:10},(_,i)=>`var(--r${i})`);
+
+/* ---------- stem (opnames van Laura, anders computerstem) ---------- */
+const $=id=>document.getElementById(id);
+const bubble=$('bubble'),bear=$('bear');
+let voice=null;
+function loadVoices(){if(!('speechSynthesis' in window))return;const v=speechSynthesis.getVoices().filter(v=>/^nl/i.test(v.lang));
+  voice=['claire','fleur','ellen','xander'].map(n=>v.find(x=>new RegExp(n,'i').test(x.name))).find(Boolean)||v[0]||null;}
+if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
+const slug=t=>t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+let curAudio=null;
+function say(text,show=text){
+  bubble.textContent=show;bear.classList.add('talk');
+  return new Promise(res=>{
+    let done=false,fell=false;
+    const fin=()=>{if(done)return;done=true;clearTimeout(tm);bear.classList.remove('talk');res();};
+    const tm=setTimeout(fin,2500+text.length*120);
+    const tts=()=>{if(fell)return;fell=true;if(!('speechSynthesis' in window)||!voice)return;
+      const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=.95;u.pitch=1.3;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);};
+    if(curAudio){curAudio.pause();curAudio=null;}
+    if('speechSynthesis' in window)speechSynthesis.cancel();
+    const a=new Audio('audio/'+slug(text)+'.mp3');curAudio=a;a.onended=fin;a.onerror=tts;a.play().catch(tts);
+  });
+}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ---------- geluid ---------- */
+let ac=null;
+function tone(f,d,type='sine',vol=.12,when=0){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  const t=ac.currentTime+when,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.05);}catch(e){}}
+const fanfare=()=>[523,659,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.11,i*.09));
+
+/* ---------- veld ---------- */
+const grid=$('grid');let count=0,busy=false;
+try{count=Math.min(200,parseInt(localStorage.getItem('tot100')||'0',10)||0);}catch(e){}
+const save=()=>{try{localStorage.setItem('tot100',String(count));}catch(e){}};
+let OFF=count>=100?100:0;
+const cells=[];
+for(let n=1;n<=100;n++){
+  const c=document.createElement('button');c.className='cell';c.style.setProperty('--c',ROWC[Math.floor((n-1)/10)]);
+  c.innerHTML=`<span>${n}</span>`;c.setAttribute('aria-label',String(n));c.onclick=()=>tap(n+OFF);grid.appendChild(c);cells.push(c);
+}
+function render(){
+  cells.forEach((c,i)=>{const n=i+1+OFF;c.firstChild.textContent=n;c.setAttribute('aria-label',String(n));c.classList.toggle('on',n<=count);c.classList.toggle('next',n===count+1);});
+  $('prog').style.width=(count/2)+'%';
+  const bn=$('bignum');
+  if(count){bn.style.setProperty('--c',ROWC[Math.floor((count-1)/10)%10]);$('bigN').textContent=count;$('bigW').textContent=word(count);}
+  else{bn.style.removeProperty('--c');$('bigN').textContent='0';$('bigW').textContent='Tik op het rondje';}
+  // rechts: hoeveel volle tientallen en losse
+  const c2=count-OFF,t=Math.floor(c2/10),u=c2%10,box=$('tens');box.innerHTML=OFF?'<div class="tenlabel" style="font-size:1.5em;font-weight:800">100 +</div>':'';
+  for(let i=0;i<t;i++){const r=document.createElement('div');r.className='tenrow';r.style.setProperty('--c',ROWC[i]);r.innerHTML='<i></i>'.repeat(10);box.appendChild(r);}
+  if(u){const r=document.createElement('div');r.className='tenrow';r.style.setProperty('--c',ROWC[t]);r.innerHTML='<i></i>'.repeat(u);box.appendChild(r);}
+  if(count)box.insertAdjacentHTML('beforeend',`<div class="tenlabel">${t?`${t} ${t===1?'rij':'rijen'} van tien`:''}${t&&u?' en ':''}${u?`${u} los`:''}</div>`);
+}
+async function tap(n){
+  if(busy)return;
+  if(n!==count+1){const nx=cells[count-OFF];if(nx){nx.classList.remove('nudge');void nx.offsetWidth;nx.classList.add('nudge');}return;}
+  count=n;save();render();
+  const c=cells[n-1-OFF];c.classList.remove('just');void c.offsetWidth;c.classList.add('just');
+  const bn=$('bignum');bn.classList.remove('just');void bn.offsetWidth;bn.classList.add('just');
+  tone(330+((n-1)%10)*40,.18,'triangle',.1);
+  if(n===100){busy=true;await say(word(n));fanfare();confetti();await say('Honderd! Wat knap, je hebt tot honderd geteld!');await wait(700);OFF=100;render();await say('Nu tellen we verder, helemaal tot tweehonderd!');busy=false;return;}if(n===200){busy=true;await say(word(n));fanfare();confetti();await say('Tweehonderd! Wauw, je hebt tot tweehonderd geteld!');busy=false;return;}
+  if(n%10===0){busy=true;await say(word(n));grid.classList.remove('rowwin');void grid.offsetWidth;grid.classList.add('rowwin');fanfare();
+    await say('Een hele rij vol!');busy=false;return;}
+  say(word(n));
+}
+async function confetti(){
+  const cv=$('confetti'),x=cv.getContext('2d');cv.width=innerWidth;cv.height=innerHeight;
+  const cols=['#E0412F','#F08A24','#E9B308','#6BB04A','#2F86C9','#7C5CC4','#C24F9E'];
+  const ps=Array.from({length:160},()=>({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,vx:(Math.random()-.5)*3,vy:2+Math.random()*4,s:6+Math.random()*8,c:cols[Math.floor(Math.random()*cols.length)],r:Math.random()*6}));
+  const t0=performance.now();
+  (function f(t){x.clearRect(0,0,cv.width,cv.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.r+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);x.restore();});
+    if(t-t0<4500)requestAnimationFrame(f);else x.clearRect(0,0,cv.width,cv.height);})(t0);
+}
+$('playBtn').onclick=async()=>{tone(1,.01,'sine',0);$('start').hidden=true;busy=true;
+  await say(count?'Hoi! Zullen we verder tellen? Tik op het rondje dat beweegt.':'Hoi! Zullen we samen tot honderd tellen? Tik op het rondje dat beweegt.');busy=false;};
+
+/* ---------- ouders ---------- */
+$('parentBtn').onclick=()=>{$('parent').hidden=false;$('gate').hidden=false;$('dash').hidden=true;};
+$('closeGate').onclick=$('closeDash').onclick=()=>{$('parent').hidden=true;};
+let holdT=null,holdStart=0;const holdBtn=$('holdBtn'),holdBar=$('holdBar');
+function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/3000);holdBar.style.width=(p*100)+'%';if(p>=1){holdT=null;openDash();return;}holdT=requestAnimationFrame(holdTick);}
+holdBtn.addEventListener('pointerdown',e=>{e.preventDefault();holdStart=performance.now();holdT=requestAnimationFrame(holdTick);});
+['pointerup','pointerleave','pointercancel'].forEach(ev=>holdBtn.addEventListener(ev,()=>{if(holdT){cancelAnimationFrame(holdT);holdT=null;}holdBar.style.width='0';}));
+function openDash(){holdBar.style.width='0';$('gate').hidden=true;$('dash').hidden=false;
+  $('dashText').textContent=count?`Je kind heeft tot ${count} geteld. Het spel onthoudt waar je bent gebleven.`:'Er is nog niet geteld.';}
+$('resetBtn').onclick=()=>{count=0;OFF=0;save();render();openDash();};
+$('jumpBtn').onclick=()=>{count=count<100?95:195;OFF=count>=100?100:0;save();render();openDash();};
+
+function allLines(){const L=['Een hele rij vol!','Honderd! Wat knap, je hebt tot honderd geteld!',
+  'Hoi! Zullen we verder tellen? Tik op het rondje dat beweegt.','Hoi! Zullen we samen tot honderd tellen? Tik op het rondje dat beweegt.'];
+  L.push('Nu tellen we verder, helemaal tot tweehonderd!','Tweehonderd! Wauw, je hebt tot tweehonderd geteld!');for(let n=1;n<=200;n++)L.push(word(n));return L;}
+render();
+</script>
+<script>/* Bella kijkt blij bij een compliment */(function(){const b=document.getElementById('bear'),u=document.getElementById('bubble');if(!b||!u)return;let t;new MutationObserver(()=>{if(/^(Goed zo|Super|Knap|Wat goed|Wat knap|Ja[!,]|Prima|Top|Helemaal goed|Hoera|Goed gedaan|Wauw|Netjes|Klopt|Mooi!|Lekker!|Precies|Heel goed)/i.test(u.textContent.trim())&&!b.classList.contains('sleep')){b.classList.add('happy');clearTimeout(t);t=setTimeout(()=>b.classList.remove('happy'),1800);}}).observe(u,{childList:true,characterData:true,subtree:true});})();</script>
+<script src="img/e/lijst.js"></script><script src="plaatjes.js"></script><script src="feest.js"></script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="profiel.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Romeo &amp; Giorgio ABC</title>
+<link rel="stylesheet" href="fonts/fredoka.css">
+<style>
+/* Same play world as the other games: Romeo on the left, the field with letter/picture or the ABC row on the right; letters on the grass.
+   Lower-case letters (as in Reception), in Fredoka. */
+:root{
+  --sky:#BFE3F7; --sky2:#EAF7FD; --grass:#86C873; --grass2:#62A955;
+  --bear:#A86B3C; --bear-l:#E8B98A; --bear-d:#3B2416;
+  --ink:#22324A; --card:#FFFFFF; --hl:#FFD84D; --soft:#5B6B82; --plus:#2F86C9; --min:#E0412F; --ok:#2FB36B;
+  --f:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --emoji:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:var(--f);color:var(--ink);background:var(--sky);overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
+button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+button:focus-visible{outline:4px solid var(--ink);outline-offset:3px}
+#app{position:fixed;inset:0;display:grid;grid-template-rows:auto 1fr auto;background:linear-gradient(var(--sky2),var(--sky));
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;gap:12px}
+.stars{display:flex;gap:6px;flex-wrap:wrap}
+.star{width:34px;height:34px}
+.star path{fill:rgba(255,255,255,.7);stroke:#E5B92E;stroke-width:3;transition:fill .3s}
+.star.on path{fill:var(--hl)}
+.parentbtn{font-size:15px;font-weight:500;color:var(--soft);background:rgba(255,255,255,.55);padding:8px 14px;border-radius:999px}
+.scene{display:grid;grid-template-columns:minmax(150px,20%) 1fr;gap:12px;padding:0 22px 12px;min-height:0}
+.bearcol{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-width:0}
+.bubble{background:var(--card);border-radius:22px;padding:12px 16px;font-size:clamp(16px,1.9vw,22px);font-weight:500;text-align:center;box-shadow:0 4px 0 rgba(34,50,74,.12);position:relative;min-height:2.6em;display:grid;place-items:center;max-width:100%}
+.bubble::after{content:"";position:absolute;bottom:-12px;left:50%;margin-left:-12px;border:12px solid transparent;border-bottom:0;border-top-color:var(--card)}
+.bear{width:min(100%,190px);height:auto}
+.bear.talk{animation:bob .5s ease-in-out infinite alternate}
+.bear .closed{display:none}.bear.sleep .open{display:none}.bear.sleep .closed{display:inline}
+@keyframes bob{to{transform:translateY(-5px) rotate(-2deg)}}
+
+.board{display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0}
+.field{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:var(--gap,clamp(16px,3vw,40px));
+  background:rgba(255,255,255,.5);border-radius:32px;border:4px dashed rgba(255,255,255,.9);padding:16px}
+/* big card: letter, picture or ear */
+.big{position:relative;width:min(36vh,26vw);height:min(36vh,26vw);flex:none;background:var(--card);border-radius:36px;box-shadow:0 8px 0 rgba(34,50,74,.12);
+  display:grid;place-items:center;transition:transform .15s,background .3s}
+.big:active{transform:translateY(3px)}
+.big.lt{font-size:min(29vh,21vw);font-weight:600;line-height:1;padding-bottom:.06em}
+.big .pic,.big.pic{font-family:var(--emoji);font-size:min(21vh,15vw);line-height:1}
+.big .re{position:absolute;right:16px;bottom:14px;width:46px;height:46px;border-radius:50%;background:var(--plus);color:#fff;font-family:var(--f);font-size:28px;font-weight:700;display:grid;place-items:center}
+.big.glow,.slot.next{animation:glow 1.6s ease-in-out infinite}
+.big.win{background:var(--hl)}
+.big.pop{animation:popin .4s cubic-bezier(.3,1.5,.5,1)}
+@keyframes popin{from{transform:scale(.3);opacity:0}}
+/* ABC row */
+.slot{width:var(--sz,120px);height:calc(var(--sz,120px)*1.22);border-radius:24px;display:grid;place-items:center;flex:none;
+  font-size:calc(var(--sz,120px)*.78);font-weight:600;line-height:1;padding-bottom:.06em;transition:transform .15s,background .3s,box-shadow .3s}
+.slot.given{background:var(--card);box-shadow:0 6px 0 rgba(34,50,74,.12)}
+.slot.empty{background:rgba(255,255,255,.7);border:4px dashed #AEB9C8}
+.slot.q{background:rgba(255,255,255,.7);border:4px dashed #AEB9C8;color:#AEB9C8}
+.slot.next{border-color:#E5B92E}
+.slot.peek{color:#C9D2DE}
+.slot.filled{background:var(--card);border:4px solid var(--card);color:var(--ink);box-shadow:0 6px 0 rgba(34,50,74,.12)}
+.slot.cur{background:var(--hl);transform:translateY(-6px)}
+.slot.win{background:var(--hl);border-color:var(--hl)}
+@keyframes glow{50%{box-shadow:0 6px 0 rgba(34,50,74,.12),0 0 0 10px rgba(255,216,77,.65)}}
+
+.answers{background:linear-gradient(var(--grass),var(--grass2));padding:18px 22px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:clamp(14px,2.4vw,30px);border-top:6px solid #9BD688;min-height:calc(160px + env(safe-area-inset-bottom,0px))}
+.tile{width:clamp(104px,11.5vw,136px);aspect-ratio:1/1;background:var(--card);border-radius:28px;box-shadow:0 7px 0 rgba(0,0,0,.18);display:grid;place-items:center;position:relative;transition:transform .12s,opacity .3s}
+.tile:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.tile .ch{font-size:clamp(64px,7.6vw,92px);font-weight:600;line-height:1;padding-bottom:.06em}
+.tile .pic{font-family:var(--emoji);font-size:clamp(48px,6vw,66px);line-height:1}
+.tile .re{position:absolute;right:10px;bottom:8px;width:34px;height:34px;border-radius:50%;background:var(--plus);color:#fff;font-size:22px;font-weight:700;display:grid;place-items:center}
+.tile.used{visibility:hidden}
+.tile.nope{opacity:.3;pointer-events:none}
+.tile.right{background:var(--hl)}
+.tile.shake{animation:shake .4s}
+.tile.pulse,.saybtn.pulse{animation:pulse 1.1s ease-in-out infinite}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@keyframes pulse{50%{transform:scale(1.08);box-shadow:0 7px 0 rgba(0,0,0,.18),0 0 0 10px rgba(255,216,77,.7)}}
+.saybtn{height:clamp(104px,11.5vw,132px);padding:0 34px;border-radius:32px;background:var(--ok);color:#fff;box-shadow:0 7px 0 #1E7F4A;display:flex;align-items:center;gap:14px;font-size:clamp(30px,3.6vw,42px);font-weight:700;flex:none}
+.saybtn .ic{font-family:var(--emoji);font-size:1.3em;line-height:1}
+.saybtn:active{transform:translateY(4px);box-shadow:0 3px 0 #1E7F4A}
+.sparkle{position:absolute;pointer-events:none;font-family:var(--emoji);font-size:34px;z-index:7;animation:fly 1s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) scale(.4);opacity:0}}
+.busy .tile,.busy .big,.busy .saybtn{pointer-events:none}
+
+.overlay{position:fixed;inset:0;display:grid;place-items:center;background:linear-gradient(var(--sky2),var(--sky));z-index:5;padding:24px}
+.card{display:flex;flex-direction:column;align-items:center;gap:18px;text-align:center;max-width:520px}
+.card h1{font-size:clamp(36px,6vw,60px);margin:0;font-weight:700}
+.card p{margin:0;font-size:20px;color:var(--soft)}
+.card .hero{width:170px;height:auto;display:block}
+.play{font-size:34px;font-weight:700;background:var(--plus);color:#fff;border-radius:999px;padding:18px 54px;box-shadow:0 8px 0 #1F5F92}
+.play:active{transform:translateY(5px);box-shadow:0 3px 0 #1F5F92}
+.menu{font-size:18px;font-weight:600;color:var(--soft);text-underline-offset:4px}
+.small{font-size:14px;color:var(--soft)}
+
+.parent{position:fixed;inset:0;background:rgba(34,50,74,.45);display:grid;place-items:center;z-index:6;padding:20px}
+.panel{background:var(--card);border-radius:24px;padding:24px;width:min(580px,100%);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:14px;font-family:system-ui,-apple-system,sans-serif}
+.panel h2{margin:0;font-family:var(--f);font-size:26px}
+.hold{position:relative;overflow:hidden;background:var(--sky2);border-radius:16px;padding:22px;font-size:18px;font-weight:600;text-align:center;width:100%}
+.hold span{position:absolute;inset:0 auto 0 0;width:0;background:var(--hl);opacity:.7}
+.hold b{position:relative}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stats div{background:var(--sky2);border-radius:14px;padding:10px 12px}
+.stats b{display:block;font-size:24px;font-family:var(--f);font-variant-numeric:tabular-nums}
+.stats small{color:var(--soft);font-size:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:15px}
+.row label{min-width:120px;color:var(--soft)}
+select,.btn{font:inherit;font-size:15px;padding:8px 12px;border-radius:10px;border:1px solid #CBD5E1;background:#fff}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:6px 8px;border-bottom:1px solid #E2E8F0;text-align:left}
+th{color:var(--soft);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+@media (orientation:portrait){.scene{grid-template-columns:1fr;grid-template-rows:auto 1fr}.bearcol{flex-direction:row}.bear{width:100px}.bubble::after{display:none}
+  .big{width:min(30vh,40vw);height:min(30vh,40vw)}.big.lt{font-size:min(24vh,32vw)}.big .pic,.big.pic{font-size:min(17vh,23vw)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+[hidden]{display:none!important}
+</style>
+<style>/* Romeo drawing */.bear img{width:100%;height:auto;display:block;pointer-events:none}.bear .happy,.bear .closed{display:none}.bear.happy .open{display:none}.bear.happy .happy{display:block}.bear.sleep .open,.bear.sleep .happy{display:none}.bear.sleep .closed{display:block}</style>
+<style>/* back button */.topleft{display:flex;align-items:center;gap:12px;min-width:0}.homebtn{flex:none;width:54px;height:54px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 3px 0 rgba(34,50,74,.14);touch-action:manipulation}.homebtn svg{width:30px;height:30px}.homebtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(34,50,74,.14)}</style>
+<style>.homebtn,.parentbtn,a[href="index.html"]{display:none!important}</style></head>
+<body>
+<div id="app">
+  <div class="top">
+    <div class="topleft"><a class="homebtn" href="index.html" aria-label="Back to the menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 11.2 12 4l8.5 7.2" fill="none" stroke="#22324A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9.5h4.5V14h3v5.5H18V10" fill="#FFD84D" stroke="#22324A" stroke-width="2.2" stroke-linejoin="round"/></svg></a><div class="stars" id="stars" aria-label="Stars"></div></div>
+    <button class="parentbtn" id="parentBtn">Parents</button>
+  </div>
+  <div class="scene">
+    <div class="bearcol">
+      <div class="bubble" id="bubble" aria-live="polite">Hello!</div>
+      <div class="bear" id="bear" aria-hidden="true"><img class="open" src="img/romeo-zwaai.webp" alt=""><img class="happy" src="img/romeo-blij.webp" alt=""><img class="closed" src="img/romeo-slaap.webp" alt=""></div>
+    </div>
+    <div class="board">
+      <div class="field" id="field"></div>
+    </div>
+  </div>
+  <div class="answers" id="answers"></div>
+</div>
+
+<div class="overlay" id="start">
+  <div class="card">
+    <img class="hero" src="img/romeo-zwaai.webp" alt="">
+    <h1>ABC</h1>
+    <p>With Romeo and Giorgio</p>
+    <button class="play" id="playBtn">▶ Play</button>
+    <a class="menu" href="index.html">← Menu</a>
+  </div>
+</div>
+<div class="overlay" id="end" hidden>
+  <div class="card">
+    <div class="stars" id="endStars"></div>
+    <h1>Well done!</h1>
+    <p>Giorgio and I are going to sleep now. See you tomorrow!</p>
+    <button class="play" id="againBtn">Play again</button>
+    <a class="menu" href="index.html">← Menu</a>
+  </div>
+</div>
+
+<div class="parent" id="parent" hidden>
+  <div class="panel">
+    <div id="gate">
+      <h2>For parents</h2>
+      <p style="color:var(--soft);margin:6px 0 14px">Hold the button down for 3 seconds.</p>
+      <button class="hold" id="holdBtn"><span id="holdBar"></span><b>Hold down</b></button>
+      <div class="row" style="margin-top:12px"><button class="btn" id="closeGate">Back to the game</button></div>
+    </div>
+    <div id="dash" hidden>
+      <h2>What has your child practised?</h2>
+      <div class="stats">
+        <div><b id="sRounds">0</b><small>rounds played</small></div>
+        <div><b id="sFirst">0</b><small>right first time</small></div>
+        <div><b id="sHelp">0</b><small>with help</small></div>
+      </div>
+      <div class="row"><label>Current level</label><b id="sLevel"></b></div>
+      <table><thead><tr><th>Round</th><th>Task</th><th>Attempts</th></tr></thead><tbody id="sLog"></tbody></table>
+      <div class="row"><label for="roundSel">Rounds per session</label><select id="roundSel"><option>5</option><option selected>8</option><option>12</option></select></div>
+      <div class="row"><label for="levelSel">Level</label><select id="levelSel"></select></div>
+      <p class="small" style="margin:0">Romeo says the letters by their names (a, bee, cee) and for each letter says a word that starts with it. At level 1 your child says it after him and then taps the green tick; nothing is recorded or checked. The q and x don't have their own picture (yet); they do appear in the ABC in order.</p>
+      <div class="row"><button class="btn primary" id="closeDash">Back to the game</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=rnd(0,i);[a[i],a[j]]=[a[j],a[i]];}return a;};
+const LEVELS=[{label:'Letter and picture (say it after me)'},{label:'Which letter can you hear?'},{label:'What does it start with?'},{label:'The ABC in order'}];
+const ABC='abcdefghijklmnopqrstuvwxyz'.split('');
+
+/* ---------- letters and words ----------
+   One fixed word per letter; the first sound fits in English (hard c and g, short a/e/o/u).
+   No good word (with a picture): q, x. i = ice cream (the letter name "eye" is what you hear). */
+const WORD={a:['apple','🍎'],b:['banana','🍌'],c:['cat','🐱'],d:['dog','🐕'],e:['egg','🥚'],f:['fish','🐟'],g:['guitar','🎸'],
+  h:['horse','🐴'],i:['ice cream','🍦'],j:['jeans','👖'],k:['kite','🪁'],l:['lion','🦁'],m:['moon','🌙'],n:['nose','👃'],
+  o:['octopus','🐙'],p:['pig','🐷'],r:['rainbow','🌈'],s:['sun','☀️'],t:['tomato','🍅'],u:['umbrella','☂️'],v:['violin','🎻'],
+  w:['whale','🐳'],y:['yo-yo','🪀'],z:['zebra','🦓']};
+const PICS=Object.keys(WORD);
+// Stretched first sound as a hint for "What does it start with?" (only letters you can hold: f, l, m, n, s, v, z)
+const STRETCH={f:['Fffish.','fffish…'],l:['Lllion.','lllion…'],m:['Mmmoon.','mmmoon…'],n:['Nnnose.','nnnose…'],s:['Sssun.','sssun…'],v:['Vvviolin.','vvviolin…'],z:['Zzzebra.','zzzebra…']};
+// Letters to hear/choose (without q and x: children learn those later)
+const HEAR='abcdefghijklmnoprstuvwyz'.split('');
+// Never offered together: letter names that rhyme (bee/cee/dee…, ef/el/em…, ay/jay/kay, eye/why, you/double-you) and mirror letters
+const GROUP={};['bcdegptv','flmns','ahjk','iy','uw'].forEach((g,i)=>[...g].forEach(c=>GROUP[c]=i));
+const LOOK=['bdpq','nu','mw'];
+const clash=(a,b)=>a===b||(GROUP[a]!==undefined&&GROUP[a]===GROUP[b])||LOOK.some(s=>s.includes(a)&&s.includes(b));
+function distractors(ok,n){const out=[];for(const c of shuffle(HEAR)){if(out.length>=n)break;if(clash(c,ok)||out.some(o=>clash(o,c)))continue;out.push(c);}return out;}
+
+const letterLine=c=>`This is the letter ${c}.`;
+const vanLine=c=>`${c} is for ${WORD[c][0]}.`;
+
+const app=$('app'),bubble=$('bubble'),bear=$('bear'),field=$('field'),answers=$('answers');
+const S={level:0,streak:0,struggle:0,round:0,rounds:8,atLevel:0,attempts:0,errs:0,helped:false,pos:0,q:null,l4n:0,decks:{},last:'',toldTick:false,log:[]};
+
+/* ---------- voice ---------- */
+let voice=null;const JUF={pitch:1.3};
+function loadVoices(){if(!('speechSynthesis' in window))return;const v=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang));
+  voice=['kate','serena','daniel','samantha'].map(n=>v.find(x=>new RegExp(n,'i').test(x.name))).find(Boolean)||v[0]||null;}
+if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=loadVoices;loadVoices();
+const slug=t=>t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+let curAudio=null;
+function say(text,show=text){
+  bubble.textContent=show;bear.classList.add('talk');
+  return new Promise(res=>{
+    let done=false,fell=false;
+    const fin=()=>{if(done)return;done=true;clearTimeout(tm);bear.classList.remove('talk');res();};
+    const tm=setTimeout(fin,2500+text.length*120);
+    const tts=()=>{if(fell)return;fell=true;if(!('speechSynthesis' in window)||!voice)return;
+      const u=new SpeechSynthesisUtterance(text);u.voice=voice;u.lang=voice.lang;u.rate=.95;u.pitch=JUF.pitch;u.onend=fin;u.onerror=fin;speechSynthesis.speak(u);};
+    if(curAudio){curAudio.pause();curAudio=null;}
+    if('speechSynthesis' in window)speechSynthesis.cancel();
+    const a=new Audio('audio-en/'+slug(text)+'.mp3');curAudio=a;a.onended=fin;a.onerror=tts;a.play().catch(tts);
+  });
+}
+// Say the word without showing it in the bubble (otherwise the child could "read off" the first letter).
+const sayWord=c=>say(WORD[c][0],WORD[c][1]);
+
+/* ---------- sound ---------- */
+let ac=null;
+function tone(f,d,type='sine',vol=.14,when=0){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  const t=ac.currentTime+when,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+d);
+  o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.05);}catch(e){}}
+const sfx={note:i=>tone(392*Math.pow(2,(i%8)*2/12),.22,'triangle',.13),win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.12,i*.09)),
+  soft:()=>tone(247,.25,'sine',.09),pop:()=>tone(880,.12,'triangle',.09)};
+
+/* ---------- stars ---------- */
+const STAR='<svg class="star" viewBox="0 0 40 40"><path d="M20 3l5 10.5 11.5 1.6-8.3 8 2 11.4L20 29l-10.2 5.5 2-11.4-8.3-8L15 13.5z" stroke-linejoin="round"/></svg>';
+function drawStars(el,f){el.innerHTML='';for(let i=0;i<S.rounds;i++){el.insertAdjacentHTML('beforeend',STAR);if(i<f)el.lastChild.classList.add('on');}}
+
+/* ---------- helpers ---------- */
+const busy=on=>app.classList.toggle('busy',on);
+let target=null; // element that pulses after the second mistake
+function clearHints(){document.querySelectorAll('.pulse,.next,.glow').forEach(e=>e.classList.remove('pulse','next','glow'));}
+async function lit(el,fn){if(el)el.classList.add('glow');await fn();if(el)el.classList.remove('glow');}
+async function tapSay(el,fn){busy(true);try{await lit(el,fn);}finally{busy(false);}}
+function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake');setTimeout(()=>el.classList.remove('shake'),450);}
+function sparkle(el){const r=el.getBoundingClientRect();for(let i=0;i<6;i++){const s=document.createElement('span');s.className='sparkle';s.textContent=i%2?'⭐':'✨';
+  s.style.left=(r.left+r.width/2-17)+'px';s.style.top=(r.top-10)+'px';s.style.setProperty('--dx',(Math.cos(i)*90)+'px');s.style.setProperty('--dy',(-60-Math.random()*90)+'px');
+  document.body.appendChild(s);setTimeout(()=>s.remove(),1100);}}
+// Every letter once before any comes back; never the same one twice in a row.
+function draw(key,list){let d=S.decks[key];
+  if(!d||!d.length){d=S.decks[key]=shuffle(list);if(d.length>1&&d[d.length-1]===S.last)[d[0],d[d.length-1]]=[d[d.length-1],d[0]];}
+  const c=d.pop();S.last=c;return c;}
+function fitSize(n){const r=field.getBoundingClientRect();const gap=12;field.style.setProperty('--gap',gap+'px');
+  const w=Math.max(200,r.width-40),h=Math.max(120,r.height-40);
+  const sz=Math.max(60,Math.min(150,Math.floor((w-(n-1)*gap)/n),Math.floor(h/1.22)));field.style.setProperty('--sz',sz+'px');}
+function bigBtn(cls,html,label){const b=document.createElement('button');b.className='big '+cls;b.innerHTML=html;b.setAttribute('aria-label',label);field.appendChild(b);return b;}
+function letterTiles(opts,onTap){answers.innerHTML='';
+  opts.forEach(c=>{const t=document.createElement('button');t.className='tile';t.dataset.ch=c;t.setAttribute('aria-label',c);
+    t.innerHTML=`<span class="ch">${c}</span>`;t.onclick=()=>onTap(t);answers.appendChild(t);});}
+
+/* ---------- level 1: letter and picture, say it after me ---------- */
+async function roundPair(){
+  const c=draw('pair',PICS),[w,pic]=WORD[c];S.q={type:'pair',c,desc:`Letter and picture: ${c} (${w})`};
+  const bl=bigBtn('lt',c,c),bp=bigBtn('pic',pic,w);
+  bl.onclick=()=>tapSay(bl,()=>say(letterLine(c)));
+  bp.onclick=()=>tapSay(bp,()=>sayWord(c));
+  await wait(400);
+  await lit(bl,()=>say(letterLine(c)));
+  await lit(bp,()=>say(vanLine(c)));
+  await say('Say it after me.');
+  const r=document.createElement('button');r.className='tile';r.setAttribute('aria-label','Hear it again');
+  r.innerHTML='<span class="pic">👂</span><span class="re">↻</span>';
+  r.onclick=()=>tapSay(null,async()=>{await lit(bl,()=>say(letterLine(c)));await lit(bp,()=>say(vanLine(c)));});
+  const g=document.createElement('button');g.className='saybtn';g.setAttribute('aria-label','Said it');
+  g.innerHTML='<span>Said it!</span><span class="ic">✅</span>';
+  g.onclick=async()=>{busy(true);g.classList.remove('pulse');sfx.win();sparkle(g);answers.innerHTML='';
+    bl.classList.add('win');bp.classList.add('win');await say('Nicely said!');finishRound();};
+  answers.innerHTML='';answers.append(r,g);
+  if(!S.toldTick){S.toldTick=true;g.classList.add('pulse');await say('Have you said it? Then tap the green tick.');}
+  busy(false);
+}
+
+/* ---------- level 2: which letter can you hear? ---------- */
+async function roundHear(){
+  const c=draw('hear',HEAR);const n=S.atLevel<2?1:2;   // first two rounds at this level: choose from 2
+  const ear=bigBtn('ear','<span class="pic">👂</span><span class="re">↻</span>','Hear it again');
+  ear.onclick=()=>tapSay(ear,()=>say(c,'👂'));
+  letterTiles(shuffle([c,...distractors(c,n)]),t=>choose(t,t.dataset.ch));
+  target=answers.querySelector(`[data-ch="${c}"]`);
+  S.q={type:'hear',c,desc:`Which letter can you hear: ${c}`,
+    hint:async()=>{await say('Almost! Listen carefully again.');await lit(ear,()=>say(c,'👂'));},
+    right:async()=>{ear.innerHTML='';ear.classList.add('lt','win','pop');ear.textContent=c;await say('Well done!');await say(letterLine(c));}};
+  await wait(400);await say('Which letter can you hear?');await lit(ear,()=>say(c,'👂'));
+  busy(false);
+}
+
+/* ---------- level 3: what does it start with? ---------- */
+async function roundFirst(){
+  const c=draw('first',PICS),[w,pic]=WORD[c];
+  const bp=bigBtn('pic',pic,w);bp.onclick=()=>tapSay(bp,()=>sayWord(c));
+  letterTiles(shuffle([c,...distractors(c,2)]),t=>choose(t,t.dataset.ch));
+  target=answers.querySelector(`[data-ch="${c}"]`);
+  S.q={type:'first',c,desc:`What does ${w} start with: ${c}`,
+    hint:async()=>{await say('Almost! Listen carefully again.');await lit(bp,()=>STRETCH[c]?say(...STRETCH[c]):sayWord(c));},
+    right:async()=>{const bl=document.createElement('button');bl.className='big lt win pop';bl.textContent=c;bl.setAttribute('aria-label',c);
+      bl.onclick=()=>tapSay(bl,()=>say(vanLine(c)));field.insertBefore(bl,bp);bp.classList.add('win');
+      await say('Well done!');await say(vanLine(c));}};
+  await wait(400);await lit(bp,()=>sayWord(c));await say('Which letter does this word start with?');
+  busy(false);
+}
+
+/* ---------- choice (levels 2, 3 and 4a): first mistake a hint, second mistake light up the right answer ---------- */
+async function choose(t,ch){
+  const q=S.q;
+  if(ch===q.c){busy(true);clearHints();t.classList.add('right');sfx.win();await q.right();finishRound();return;}
+  S.attempts++;S.errs++;sfx.soft();shake(t);t.classList.add('nope');busy(true);
+  if(S.errs===1&&!S.helped)await q.hint();
+  else{S.helped=true;if(target)target.classList.add('pulse');await say('Look, it\'s this one. Tap it.');}
+  busy(false);
+}
+
+/* ---------- level 4a: which letter is missing from the row? ---------- */
+async function readRow(row,gap,upto){
+  const slots=[...field.querySelectorAll('.slot')];
+  for(let i=0;i<upto;i++){const s=slots[i];s.classList.add('cur');
+    if(i===gap&&s.classList.contains('q')){sfx.pop();await wait(800);}else await say(row[i]);
+    s.classList.remove('cur');await wait(80);}
+}
+async function roundGap(){
+  let len,s,g,tries=0;
+  do{len=rnd(4,5);s=rnd(0,26-len);g=rnd(1,len-1);}while(('qx'.includes(ABC[s+g])||ABC[s+g]===S.last)&&tries++<50);
+  const row=ABC.slice(s,s+len),c=row[g];S.last=c;
+  const near=ABC.filter((x,i)=>i>=s-4&&i<s+len+4&&!row.includes(x)&&!'qx'.includes(x));
+  const opts=shuffle([c,...shuffle(near).slice(0,2)]);
+  fitSize(len);
+  field.innerHTML=row.map((x,i)=>i===g?`<div class="slot q">?</div>`:`<div class="slot given">${x}</div>`).join('');
+  const gapEl=field.children[g];
+  letterTiles(opts,t=>choose(t,t.dataset.ch));
+  target=answers.querySelector(`[data-ch="${c}"]`);
+  S.q={type:'gap',c,desc:`ABC row: ${row.map((x,i)=>i===g?'_':x).join(' ')} (${c})`,
+    hint:async()=>{await say('Almost! What comes after that?');await readRow(row,g,g);gapEl.classList.add('next');},
+    right:async()=>{gapEl.className='slot filled';gapEl.textContent=c;await say('Well done!');
+      await readRow(row,-1,row.length);field.querySelectorAll('.slot').forEach(e=>e.classList.add('win'));await wait(400);}};
+  await wait(400);await readRow(row,g,row.length);
+  gapEl.classList.add('next');await say('Which letter goes here?');
+  busy(false);
+}
+
+/* ---------- level 4b: tap the letters in order ---------- */
+async function roundSeq(){
+  const st=[0,0,5,10,15,21][rnd(0,5)];const seq=ABC.slice(st,st+5);S.seq=seq;S.pos=0;
+  S.q={type:'seq',c:seq[0],desc:`ABC in order: ${seq[0]} to ${seq[4]}`};
+  fitSize(5);
+  field.innerHTML=seq.map((x,i)=>`<div class="slot empty" data-i="${i}"></div>`).join('');
+  let order=shuffle(seq),tries=0;while(order.join('')===seq.join('')&&tries++<10)order=shuffle(seq);
+  letterTiles(order,placeTile);
+  await wait(400);await say('Tap the letters in the right order.');await say('Start with','Start with …');await say(seq[0]);
+  markSlot();busy(false);
+}
+function markSlot(){clearHints();const sl=field.querySelector(`.slot[data-i="${S.pos}"]`);if(sl)sl.classList.add('next');
+  target=[...answers.querySelectorAll('.tile:not(.used)')].find(t=>t.dataset.ch===S.seq[S.pos])||null;}
+async function placeTile(t){
+  const seq=S.seq;if(t.classList.contains('used'))return;
+  if(t.dataset.ch!==seq[S.pos]){
+    S.attempts++;S.errs++;sfx.soft();shake(t);busy(true);
+    if(S.errs===1&&!S.helped){await say(S.pos===0?'Almost! Have another good look.':'Almost! What comes after that?');peekSlot();}
+    else{S.helped=true;if(target)target.classList.add('pulse');await say('Look, it\'s this one. Tap it.');}
+    busy(false);return;}
+  t.classList.add('used');t.classList.remove('pulse');
+  const sl=field.querySelector(`.slot[data-i="${S.pos}"]`);sl.className='slot filled';sl.textContent=seq[S.pos];
+  sfx.note(S.pos);S.pos++;
+  if(S.pos>=seq.length){busy(true);clearHints();await say(seq[S.pos-1]);await wait(300);
+    field.querySelectorAll('.slot').forEach(e=>e.classList.add('win'));sfx.win();await say('Well done!');finishRound();return;}
+  say(seq[S.pos-1]);markSlot();
+}
+async function peekSlot(){const i=S.pos,sl=field.querySelector(`.slot[data-i="${i}"]`);if(!sl)return;
+  sl.classList.add('peek');sl.textContent=S.seq[i];await wait(1600);
+  if(S.pos===i&&sl.classList.contains('peek')){sl.classList.remove('peek');sl.textContent='';}}
+
+/* ---------- game flow ---------- */
+async function newRound(){
+  Object.assign(S,{attempts:0,errs:0,helped:false,pos:0,q:null});target=null;
+  field.innerHTML='';field.style.removeProperty('--gap');answers.innerHTML='';busy(true);
+  if(S.level===0)await roundPair();
+  else if(S.level===1)await roundHear();
+  else if(S.level===2)await roundFirst();
+  else{S.l4n++;if(S.l4n%3===0)await roundSeq();else await roundGap();}   // now and then: put a whole bit of the ABC in order
+}
+async function finishRound(){
+  S.round++;S.log.push({r:S.round,level:S.level,desc:S.q.desc,att:S.attempts+1,helped:S.helped});drawStars($('stars'),S.round);
+  const before=S.level;let msg='';
+  if(S.attempts===0&&!S.helped){S.streak++;S.struggle=0;if(S.streak>=3&&S.level<LEVELS.length-1){S.level++;S.streak=0;msg='You\'re getting better and better! Now it gets a bit harder.';}}
+  else{S.streak=0;if(S.helped){S.struggle++;if(S.struggle>=2&&S.level>0){S.level--;S.struggle=0;}}}
+  S.atLevel=S.level===before?S.atLevel+1:0;
+  await wait(600);if(msg)await say(msg);
+  if(S.round>=S.rounds){drawStars($('endStars'),S.round);$('end').hidden=false;bear.classList.add('sleep');
+    await say('Well done! Giorgio and I are going to sleep now. See you tomorrow!');return;}
+  newRound();
+}
+function startSession(){S.round=0;S.toldTick=false;drawStars($('stars'),0);bear.classList.remove('sleep');$('start').hidden=true;$('end').hidden=true;newRound();}
+$('playBtn').onclick=async()=>{tone(1,.01,'sine',0);$('start').hidden=true;busy(true);await say('Hi! Shall we practise the ABC?');startSession();};
+$('againBtn').onclick=startSession;
+
+/* ---------- parents ---------- */
+LEVELS.forEach((l,i)=>$('levelSel').insertAdjacentHTML('beforeend',`<option value="${i}">${i+1}: ${l.label}</option>`));
+$('parentBtn').onclick=()=>{$('parent').hidden=false;$('gate').hidden=false;$('dash').hidden=true;};
+$('closeGate').onclick=$('closeDash').onclick=()=>{$('parent').hidden=true;};
+let holdT=null,holdStart=0;const holdBtn=$('holdBtn'),holdBar=$('holdBar');
+function holdTick(){const p=Math.min(1,(performance.now()-holdStart)/3000);holdBar.style.width=(p*100)+'%';if(p>=1){holdT=null;openDash();return;}holdT=requestAnimationFrame(holdTick);}
+holdBtn.addEventListener('pointerdown',e=>{e.preventDefault();holdStart=performance.now();holdT=requestAnimationFrame(holdTick);});
+['pointerup','pointerleave','pointercancel'].forEach(ev=>holdBtn.addEventListener(ev,()=>{if(holdT){cancelAnimationFrame(holdT);holdT=null;}holdBar.style.width='0';}));
+function openDash(){holdBar.style.width='0';$('gate').hidden=true;$('dash').hidden=false;
+  $('sRounds').textContent=S.log.length;$('sFirst').textContent=S.log.filter(l=>l.att===1&&!l.helped).length;$('sHelp').textContent=S.log.filter(l=>l.helped).length;
+  $('sLevel').textContent=`${S.level+1}: ${LEVELS[S.level].label}`;$('levelSel').value=S.level;$('roundSel').value=S.rounds;
+  $('sLog').innerHTML=S.log.slice().reverse().map(l=>`<tr><td>${l.r}</td><td>${l.desc}</td><td>${l.att}${l.helped?' (with help)':''}</td></tr>`).join('')||'<tr><td colspan="3">Nothing played yet.</td></tr>';}
+$('levelSel').onchange=e=>{S.level=+e.target.value;S.streak=0;S.struggle=0;S.atLevel=0;};
+$('roundSel').onchange=e=>{S.rounds=+e.target.value;drawStars($('stars'),S.round);};
+
+function allLines(){const L=['Hi! Shall we practise the ABC?','Say it after me.','Have you said it? Then tap the green tick.','Nicely said!',
+  'Which letter can you hear?','Which letter does this word start with?','Which letter goes here?','Tap the letters in the right order.','Start with',
+  'Well done!','Almost! Listen carefully again.','Almost! What comes after that?','Almost! Have another good look.','Look, it\'s this one. Tap it.',
+  'You\'re getting better and better! Now it gets a bit harder.','Well done! Giorgio and I are going to sleep now. See you tomorrow!'];
+  ABC.forEach(c=>L.push(c,letterLine(c)));
+  PICS.forEach(c=>L.push(WORD[c][0],vanLine(c)));
+  Object.values(STRETCH).forEach(s=>L.push(s[0]));
+  return[...new Set(L)];}
+drawStars($('stars'),0);
+</script>
+<script>/* Romeo looks happy at a compliment */(function(){const b=document.getElementById('bear'),u=document.getElementById('bubble');if(!b||!u)return;let t;new MutationObserver(()=>{if(/^(Well done|Super|Clever|Great|Brilliant|Yes[!,]|Good job|Lovely|Perfect|Hooray|Wow|Nice|That's right|Exactly|Fantastic|Excellent|Amazing|Spot on|Very good)/i.test(u.textContent.trim())&&!b.classList.contains('sleep')){b.classList.add('happy');clearTimeout(t);t=setTimeout(()=>b.classList.remove('happy'),1800);}}).observe(u,{childList:true,characterData:true,subtree:true});})();</script>
+<script src="img/e/lijst.js"></script><script src="plaatjes.js"></script><script src="feest.js"></script>
+</body>
+</html>

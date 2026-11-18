@@ -444,3 +444,9 @@ img.gift-box { width: 140px; height: auto; font-size: 0; filter: drop-shadow(0 1
 .how.band { background: #fff; }
 .prices { background: var(--sky-light); }
 .faq.band { background: #fff; }
+
+/* Demo-keuze: twee spellen naast elkaar (18 nov) */
+.demo-choice { position: absolute; inset: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; justify-content: center; padding: 16px; }
+.demo-choice .demo-start { position: static; inset: auto; width: auto; padding: 0; }
+.demo-gsub { color: var(--ink-soft); font-weight: 600; font-size: .95rem; margin-top: -6px; }
+@media (max-width: 699px) { .demo-choice { flex-direction: column; gap: 12px; } .demo-choice .demo-card { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 12px 16px; gap: 6px 12px; } .demo-choice .demo-card img { width: 64px; } .demo-gsub { display: none; } }

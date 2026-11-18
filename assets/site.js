@@ -137,8 +137,8 @@ document.querySelectorAll('.demo-start').forEach(function (b) {
     var f = document.createElement('iframe');
     f.src = b.dataset.src; f.title = b.querySelector('.demo-title').textContent;
     f.setAttribute('allow', 'autoplay');
-    b.replaceWith(f);
-    if (window.fbq) window.fbq('trackCustom', 'DemoStart');
+    (b.closest('.demo-choice') || b).replaceWith(f);
+    if (window.fbq) window.fbq('trackCustom', 'DemoStart', { game: b.dataset.game || '' });
   });
 });
 

@@ -203,3 +203,12 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })(typeof window !== 'undefined' ? window : globalThis);
+
+/* Huisstijl Romeo & Giorgio (brandboek: huisstijl/brandboek.html): merkkleuren over alle spellen heen.
+   Wordt na de eigen stijl van de pagina gezet, zodat deze waarden winnen. */
+(function () {
+  const css = ':root{--ink:#13306B;--hl:#FFC629;--brand-blauw:#1E5BD8;--brand-geel:#FFC629;--brand-oranje:#F47B20;--brand-navy:#13306B}'
+    + '.play{background:#F47B20!important;box-shadow:0 6px 0 #B9560E!important;color:#fff!important}';
+  const add = () => { const s = document.createElement('style'); s.id = 'rg-huisstijl'; s.textContent = css; document.head.appendChild(s); };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add); else add();
+})();

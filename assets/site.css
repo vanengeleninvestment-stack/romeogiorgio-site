@@ -450,3 +450,26 @@ img.gift-box { width: 140px; height: auto; font-size: 0; filter: drop-shadow(0 1
 .demo-choice .demo-start { position: static; inset: auto; width: auto; padding: 0; }
 .demo-gsub { color: var(--ink-soft); font-weight: 600; font-size: .95rem; margin-top: -6px; }
 @media (max-width: 699px) { .demo-choice { flex-direction: column; gap: 12px; } .demo-choice .demo-card { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 12px 16px; gap: 6px 12px; } .demo-choice .demo-card img { width: 64px; } .demo-gsub { display: none; } }
+
+/* proef 22 nov */
+.trial-box{display:flex;align-items:center;gap:18px;max-width:760px;margin:6px auto 34px;padding:20px 26px;border-radius:24px;background:#fff4d1;border:3px solid var(--orange);box-shadow:0 6px 0 var(--orange-deep);text-align:left}
+.trial-gift{font-size:2.6rem;line-height:1;flex:none}
+.trial-t{margin:0;font:700 clamp(1.35rem,3vw,1.75rem) var(--head);color:var(--orange-deep)}
+.trial-d{margin:.25em 0 0;font-size:1.08rem;font-weight:600;color:var(--ink)}
+.hero-trial{display:inline-block;margin:0 0 .8em;padding:8px 16px;border-radius:999px;background:#fff4d1;border:2px solid var(--orange);font:700 1.1rem var(--head);color:var(--orange-deep)}
+@media (max-width:600px){.trial-box{padding:16px 18px;gap:12px}.trial-gift{font-size:2rem}}
+
+/* vergelijking boekjes 22 nov */
+.compare{padding:56px 0}
+.compare h2{text-align:center}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:24px auto 0}
+.cmp-col{border-radius:24px;padding:24px 26px;background:#fff;box-shadow:0 2px 4px rgba(19,48,107,.06),0 16px 32px -18px rgba(19,48,107,.35)}
+.cmp-col h3{margin:0 0 12px;font-size:1.3rem}
+.cmp-col ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.cmp-col li{display:flex;gap:10px;align-items:flex-start;font-size:1.05rem;line-height:1.4}
+.cmp-old{background:#f3f4f6;color:#5b6475}
+.cmp-old .x{flex:none;width:22px;height:22px;border-radius:50%;background:#d7dbe2;color:#6b7280;font-size:.75rem;display:grid;place-items:center;margin-top:2px}
+.cmp-new{border:3px solid var(--yellow);background:#fffbec}
+.cmp-price{margin:16px 0 0;padding:10px 14px;border-radius:14px;background:#fff4d1;border:2px solid var(--orange);font:700 1.05rem var(--head);color:var(--orange-deep)}
+@media (max-width:700px){.cmp-grid{grid-template-columns:1fr}}
+.cmp-col li svg{width:22px;height:22px;color:var(--grass);flex:none;margin-top:2px}

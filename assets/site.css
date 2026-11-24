@@ -473,3 +473,15 @@ img.gift-box { width: 140px; height: auto; font-size: 0; filter: drop-shadow(0 1
 .cmp-price{margin:16px 0 0;padding:10px 14px;border-radius:14px;background:#fff4d1;border:2px solid var(--orange);font:700 1.05rem var(--head);color:var(--orange-deep)}
 @media (max-width:700px){.cmp-grid{grid-template-columns:1fr}}
 .cmp-col li svg{width:22px;height:22px;color:var(--grass);flex:none;margin-top:2px}
+
+/* 24 nov: op telefoon de downloadknop in het eerste scherm (klik naar App Store zakte van 45% naar 9%) */
+@media (max-width: 899px) {
+  .hero-bg img { height: min(34vh, 320px); object-fit: cover; object-position: 50% 22%; }
+  .hero-in { padding-top: 14px; }
+  .hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
+  .hero-copy > * { order: 5; }
+  .hero-copy .kicker { order: 1; } .hero-copy h1 { order: 2; font-size: clamp(1.75rem, 8vw, 2.6rem); } .hero-copy .tagline { order: 3; }
+  .hero-copy .hero-trial { order: 4; margin-bottom: .6em; font-size: 1rem; padding: 6px 14px; }
+  .hero-copy .cta-wrap { order: 4; width: 100%; margin-top: 0; }
+  .hero-copy .cta-wrap .btn-main { width: 100%; text-align: center; }
+}

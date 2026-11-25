@@ -485,3 +485,9 @@ img.gift-box { width: 140px; height: auto; font-size: 0; filter: drop-shadow(0 1
   .hero-copy .cta-wrap { order: 4; width: 100%; margin-top: 0; }
   .hero-copy .cta-wrap .btn-main { width: 100%; text-align: center; }
 }
+
+/* 25 nov: rust onder de hoofdknop, en knoppen na schermen en spellen */
+.cta-note { font-size: .9rem; color: var(--ink-soft); margin: .2em 0 .9em; }
+@media (max-width: 899px) { .hero-copy .cta-note { order: 4; } }
+.mid-cta { margin-top: 26px; text-align: center; }
+.mid-cta .cta-wrap { justify-content: center; }

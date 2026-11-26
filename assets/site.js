@@ -33,9 +33,12 @@
   // Pixel laadt direct (cookiebanner verwijderd op verzoek van Lars, 17 nov 2026).
   if (RG.pixel) loadPixel();
 
-  // 3. App Store-links: campagne meegeven (ct, max 40 tekens).
-  var camp = params.get('utm_campaign') || params.get('utm_content') || params.get('utm_source') || '';
-  if (camp) store('rg-ct', camp.slice(0, 40));
+  // 3. App Store-links: campagne meegeven (ct, max 40 tekens) zodat App Store Connect
+  //    downloads, proeven en opbrengst per advertentie toont. Advertentienaam (utm_content,
+  //    bv. "RG | 24 rijmt-dat | 9x16 | boost") wordt "24-rijmt-dat-9x16-boost".
+  var slug = function (x) { return String(x).replace(/^RG\s*\|\s*/i, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40); };
+  var camp = params.get('utm_content') || params.get('utm_campaign') || params.get('utm_source') || '';
+  if (camp && slug(camp)) store('rg-ct', slug(camp));
   var ct = store('rg-ct') || 'website';
   if (RG.appStoreId) {
     document.querySelectorAll('.js-store').forEach(function (a) {
